@@ -27,6 +27,8 @@ type Bid struct {
 
 var db *sql.DB
 
+const anonymousKeyPass = "gq123jad9dq"
+
 //==================== Auxiliary Functions ====================
 // Check for valid key within query string
 func validKey(r *http.Request) bool {
@@ -44,41 +46,19 @@ func validKey(r *http.Request) bool {
 
 //==================== Database functions ====================
 
-/*
-Create (4) - DB Done
-Read by Bid ID - DB Done
-Update by Bid ID (5) - DB Done
-Delete by Bid ID (5) - DB Done
-Read all bids by student ID and SemesterStartDate (5, 8) - DB Done
-Read all bids by Class ID and SemesterStartDate and PaxNo (If paxNo not supplied, Get all) (6) - DB Done
-
-4. Create bid for a class -> /api/bids POST
-5. View own bids, edit and delete appropriately  /api/bids/StudentID={studentID}
-6. View all anonymized bids of classes (show self tho)
-
- /api/bids/ClassID={classID} and pax={paxNo} and Semester = {semesterStartDate}
- /api/bids/ClassID={classID} and Semester = {semesterStartDate}
-
-7. View all bids of classes?
-
-8. Show results of bidding /api/bids/StudentID={studentID}, Semester = {semesterStartDate}
-
-
-9. Clear Bidding ? Unlikely
-
-*/
-
+// Create bid
 func CreateBid(db *sql.DB, b Bid) {
 
 	// BidID is auto incremented
 	query := fmt.Sprintf("INSERT INTO Bid (SemesterStartDate, ClassID, StudentID, StudentName, TokenAmount, `Status`) VALUES ('%s','%d','%s', '%s','%d', '%s')",
 		b.SemesterStartDate, b.ClassID, b.StudentID, b.StudentName, b.TokenAmount, b.Status)
 
-	_, err := db.Query(query)
-
-	if err != nil {
+	switch _, err := db.Query(query); err {
+	case nil:
+	default:
 		panic(err.Error())
 	}
+
 }
 
 // Get bid details by bid ID
@@ -109,8 +89,9 @@ func UpdateBid(db *sql.DB, bidID int, b Bid) {
 	query := fmt.Sprintf("UPDATE Bid SET SemesterStartDate = '%s', ClassID = '%d', StudentID = '%s', StudentName = '%s', TokenAmount = '%d', `Status` = '%s' WHERE BidID = %d",
 		b.SemesterStartDate, b.ClassID, b.StudentID, b.StudentName, b.TokenAmount, b.Status, bidID)
 
-	_, err := db.Query(query)
-	if err != nil {
+	switch _, err := db.Query(query); err {
+	case nil:
+	default:
 		panic(err.Error())
 	}
 }
@@ -119,23 +100,27 @@ func UpdateBid(db *sql.DB, bidID int, b Bid) {
 func DeleteBid(db *sql.DB, bidID int) string {
 	query := fmt.Sprintf("DELETE FROM Bid WHERE BidID=%d", bidID)
 
-	_, err := db.Query(query)
 	var errMsg string
 
-	if err != nil {
-		errMsg = "Trip does not exist"
+	switch _, err := db.Query(query); err {
+	case nil:
+	default:
+		errMsg = "Bid does not exist"
 	}
+
 	return errMsg
 }
 
-// Get list of bids by studentID and semester
-func GetStudentBids(db *sql.DB, studentID string, semesterStartDate string) ([]Bid, string) {
-	query := fmt.Sprintf("SELECT * FROM Bid where StudentID = '%s' and SemesterStartDate = '%s'", studentID, semesterStartDate)
+// Get list of bids by semester and status
+func GetSemesterBidsByStatus(db *sql.DB, semesterStartDate string, status string) ([]Bid, string) {
+	query := fmt.Sprintf("SELECT * FROM Bid where SemesterStartDate = '%s' and `Status` = '%s'", semesterStartDate, status)
 
 	// Get all results
 	results, err := db.Query(query)
 
-	if err != nil {
+	switch err {
+	case nil:
+	default:
 		panic(err.Error())
 	}
 
@@ -147,7 +132,10 @@ func GetStudentBids(db *sql.DB, studentID string, semesterStartDate string) ([]B
 		// Map a row to a Bid
 		var bid Bid
 		err := results.Scan(&bid.BidID, &bid.SemesterStartDate, &bid.ClassID, &bid.StudentID, &bid.StudentName, &bid.TokenAmount, &bid.Status)
-		if err != nil {
+
+		switch err {
+		case nil:
+		default:
 			panic(err.Error())
 		}
 
@@ -157,15 +145,104 @@ func GetStudentBids(db *sql.DB, studentID string, semesterStartDate string) ([]B
 	}
 
 	// If no result
-	if errMsg != "" {
+	switch errMsg {
+	case "":
+	default:
+		errMsg = "No bids made that semester with the following status:" + status
+	}
+
+	return bids, errMsg
+}
+
+// Get list of bids by studentID and semester
+func GetStudentBids(db *sql.DB, studentID string, semesterStartDate string) ([]Bid, string) {
+	query := fmt.Sprintf("SELECT * FROM Bid where StudentID = '%s' and SemesterStartDate = '%s'", studentID, semesterStartDate)
+
+	// Get all results
+	results, err := db.Query(query)
+
+	switch err {
+	case nil:
+	default:
+		panic(err.Error())
+	}
+
+	var bids []Bid
+	errMsg := "placeholder" //Temporary placeholder till any results existing determined
+
+	// Loop through results
+	for results.Next() {
+		// Map a row to a Bid
+		var bid Bid
+		err := results.Scan(&bid.BidID, &bid.SemesterStartDate, &bid.ClassID, &bid.StudentID, &bid.StudentName, &bid.TokenAmount, &bid.Status)
+
+		switch err {
+		case nil:
+		default:
+			panic(err.Error())
+		}
+
+		errMsg = ""
+		// Append mapped bid to bid array
+		bids = append(bids, bid)
+	}
+
+	// If no result
+	switch errMsg {
+	case "":
+	default:
 		errMsg = "No bids made by student that semester"
 	}
 
 	return bids, errMsg
 }
 
+// Get list of bids by studentID and semester and status
+func GetStudentBidsByStatus(db *sql.DB, studentID string, semesterStartDate string, status string) ([]Bid, string) {
+	query := fmt.Sprintf("SELECT * FROM Bid where StudentID = '%s' and SemesterStartDate = '%s' and `Status` = '%s'", studentID, semesterStartDate, status)
+
+	// Get all results
+	results, err := db.Query(query)
+
+	switch err {
+	case nil:
+	default:
+		panic(err.Error())
+	}
+
+	var bids []Bid
+	errMsg := "placeholder" //Temporary placeholder till any results existing determined
+
+	// Loop through results
+	for results.Next() {
+		// Map a row to a Bid
+		var bid Bid
+		err := results.Scan(&bid.BidID, &bid.SemesterStartDate, &bid.ClassID, &bid.StudentID, &bid.StudentName, &bid.TokenAmount, &bid.Status)
+
+		switch err {
+		case nil:
+		default:
+			panic(err.Error())
+		}
+
+		errMsg = ""
+		// Append mapped bid to bid array
+		bids = append(bids, bid)
+	}
+
+	// If no result
+	switch errMsg {
+	case "":
+	default:
+		errMsg = "No bids made by student that semester with the following status:" + status
+	}
+
+	return bids, errMsg
+}
+
 // Get a list of bids length of PaxNo by Class ID, SemesterStartDate in highest to lowest TokenAmount
-func GetTopClassBids(db *sql.DB, classID int, semesterStartDate string, paxNo int) ([]Bid, string) {
+// If anonymous == True, don't retrieve names
+func GetTopClassBids(db *sql.DB, classID int, semesterStartDate string, paxNo int, anonymous bool) ([]Bid, string) {
 
 	var query string
 
@@ -179,7 +256,9 @@ func GetTopClassBids(db *sql.DB, classID int, semesterStartDate string, paxNo in
 	// Get all results
 	results, err := db.Query(query)
 
-	if err != nil {
+	switch err {
+	case nil:
+	default:
 		panic(err.Error())
 	}
 
@@ -190,8 +269,18 @@ func GetTopClassBids(db *sql.DB, classID int, semesterStartDate string, paxNo in
 	for results.Next() {
 		// Map a row to a Bid
 		var bid Bid
-		err := results.Scan(&bid.BidID, &bid.SemesterStartDate, &bid.ClassID, &bid.StudentID, &bid.StudentName, &bid.TokenAmount, &bid.Status)
-		if err != nil {
+		var err error
+		switch anonymous {
+		case true:
+			var throwAway string
+			err = results.Scan(&bid.BidID, &bid.SemesterStartDate, &bid.ClassID, &throwAway, &throwAway, &bid.TokenAmount, &bid.Status)
+		default:
+			err = results.Scan(&bid.BidID, &bid.SemesterStartDate, &bid.ClassID, &bid.StudentID, &bid.StudentName, &bid.TokenAmount, &bid.Status)
+		}
+
+		switch err {
+		case nil:
+		default:
 			panic(err.Error())
 		}
 
@@ -201,7 +290,68 @@ func GetTopClassBids(db *sql.DB, classID int, semesterStartDate string, paxNo in
 	}
 
 	// If no result
-	if errMsg != "" {
+	switch errMsg {
+	case "":
+	default:
+		errMsg = "No bids made for class that semester"
+	}
+
+	return bids, errMsg
+}
+
+// Get a list of bids length of PaxNo by Class ID, SemesterStartDate, Status in highest to lowest TokenAmount
+// If anonymous == True, don't retrieve names
+func GetTopClassBidsByStatus(db *sql.DB, classID int, semesterStartDate string, paxNo int, status string, anonymous bool) ([]Bid, string) {
+
+	var query string
+
+	switch paxNo {
+	case -1:
+		query = fmt.Sprintf("SELECT * FROM Bid where ClassID = '%d' and SemesterStartDate = '%s' and `Status` = '%s' Order By TokenAmount DESC", classID, semesterStartDate, status)
+	default:
+		query = fmt.Sprintf("SELECT * FROM Bid where ClassID = '%d' and SemesterStartDate = '%s' and `Status` = '%s' Order By TokenAmount DESC Limit '%d'", classID, semesterStartDate, status, paxNo)
+	}
+
+	// Get all results
+	results, err := db.Query(query)
+
+	switch err {
+	case nil:
+	default:
+		panic(err.Error())
+	}
+
+	var bids []Bid
+	errMsg := "placeholder" //Temporary placeholder till any results existing determined
+
+	// Loop through results
+	for results.Next() {
+		// Map a row to a Bid
+		var bid Bid
+		var err error
+		switch anonymous {
+		case true:
+			var throwAway string
+			err = results.Scan(&bid.BidID, &bid.SemesterStartDate, &bid.ClassID, &throwAway, &throwAway, &bid.TokenAmount, &bid.Status)
+		default:
+			err = results.Scan(&bid.BidID, &bid.SemesterStartDate, &bid.ClassID, &bid.StudentID, &bid.StudentName, &bid.TokenAmount, &bid.Status)
+		}
+
+		switch err {
+		case nil:
+		default:
+			panic(err.Error())
+		}
+
+		errMsg = ""
+		// Append mapped bid to bid array
+		bids = append(bids, bid)
+	}
+
+	// If no result
+	switch errMsg {
+	case "":
+	default:
 		errMsg = "No bids made for class that semester"
 	}
 
@@ -221,9 +371,9 @@ func CreateBidRecord(w http.ResponseWriter, r *http.Request) {
 
 	reqBody, err := ioutil.ReadAll(r.Body)
 
-	if err == nil { // If no error
-
-		// Map json to trip
+	switch err {
+	case nil:
+		// Map json to bid
 		var bid Bid
 		json.Unmarshal([]byte(reqBody), &bid)
 
@@ -237,8 +387,7 @@ func CreateBidRecord(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusCreated)
 			w.Write([]byte("201 - Bid created for: " + strconv.Itoa(bid.ClassID) + " at " + strconv.Itoa(bid.TokenAmount)))
 		}
-
-	} else { //incorrect format
+	default:
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		w.Write([]byte("422 - Please supply bid information in JSON format"))
 	}
@@ -264,11 +413,12 @@ func GetBidRecordByBidID(w http.ResponseWriter, r *http.Request) {
 
 	// Run db GetBid function
 	bid, errMsg = GetBid(db, bidID)
-	if errMsg == "Bid does not exist" {
+	switch errMsg {
+	case "Bid does not exist":
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte("404 - " + errMsg))
-	} else {
-		// Return trip
+	default:
+		// Return bid
 		json.NewEncoder(w).Encode(bid)
 	}
 }
@@ -290,7 +440,8 @@ func UpdateBidRecord(w http.ResponseWriter, r *http.Request) {
 
 	reqBody, err := ioutil.ReadAll(r.Body)
 
-	if err == nil {
+	switch err {
+	case nil:
 		// Retrieve new object
 		var bid Bid
 		json.Unmarshal([]byte(reqBody), &bid)
@@ -305,8 +456,7 @@ func UpdateBidRecord(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusAccepted)
 			w.Write([]byte("202 - Bid details updated"))
 		}
-
-	} else {
+	default:
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		w.Write([]byte("422 - Please supply bid information in JSON format"))
 	}
@@ -327,10 +477,11 @@ func DeleteBidRecord(w http.ResponseWriter, r *http.Request) {
 
 	// Run db DeleteBid function
 	errMsg := DeleteBid(db, bidID)
-	if errMsg == "Bid does not exist" {
+	switch errMsg {
+	case "Bid does not exist":
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte("404 - No bid found"))
-	} else {
+	default:
 		w.WriteHeader(http.StatusAccepted)
 		w.Write([]byte("202 - Bid deleted: " + strconv.Itoa(bidID)))
 	}
@@ -344,20 +495,69 @@ func GetBidQueryStringValidator(w http.ResponseWriter, r *http.Request) {
 	_, okStudent := queryString["studentID"]
 	_, okSemester := queryString["semesterStartDate"]
 	_, okClass := queryString["classID"]
+	_, okStatus := queryString["status"]
 
 	// If student ID and semester start date passed in, get all student bid records
 	if okStudent && okSemester {
-		// Run HTTP GetStudentBidRecords function
-		GetStudentBidRecords(w, r)
+		if okStatus {
+			// Run HTTP GetStudentBidRecordsByStatus function
+			GetStudentBidRecordsByStatus(w, r)
+		} else {
+			// Run HTTP GetStudentBidRecords function
+			GetStudentBidRecords(w, r)
+		}
 		return
 	} else if okClass && okSemester { // If class ID and semester start date passed in, get top bids
-		// Run HTTP GetTopClassBidRecords function
-		GetTopClassBidRecords(w, r)
+		if okStatus {
+			// Run HTTP GetTopClassBidRecordsByStatus function
+			GetTopClassBidRecordsByStatus(w, r)
+		} else {
+			// Run HTTP GetTopClassBidRecords function
+			GetTopClassBidRecords(w, r)
+		}
 		return
-	} else { //else no appropriate function
+	} else if okSemester {
+		if okStatus {
+			// Run HTTP GetSemesterBidRecordsByStatus function
+			GetSemesterBidRecordsByStatus(w, r)
+		}
+		return
+	}
+
+	//else no appropriate function
+	w.WriteHeader(http.StatusNotFound)
+	w.Write([]byte("404 - Required parameters not found"))
+}
+
+// Get bid records with semester start date and status
+func GetSemesterBidRecordsByStatus(w http.ResponseWriter, r *http.Request) {
+
+	// Valid key for API check
+	if !validKey(r) {
+		w.WriteHeader(http.StatusUnauthorized)
+		w.Write([]byte("401 - Invalid key"))
+		return
+	}
+
+	// Get query string parameters of semester start date and status
+	queryString := r.URL.Query()
+	var semesterStartDate string
+	fmt.Sscan(queryString["semesterStartDate"][0], &semesterStartDate)
+	var status string
+	fmt.Sscan(queryString["status"][0], &status)
+
+	var bids []Bid
+	var errMsg string
+
+	// Run db GetSemesterBidsByStatus function
+	bids, errMsg = GetSemesterBidsByStatus(db, semesterStartDate, status)
+	switch errMsg {
+	case "":
+		// Return bids array
+		json.NewEncoder(w).Encode(bids)
+	default:
 		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte("404 - Required parameters not found"))
-		return
+		w.Write([]byte("404 - " + errMsg))
 	}
 }
 
@@ -383,12 +583,47 @@ func GetStudentBidRecords(w http.ResponseWriter, r *http.Request) {
 
 	// Run db GetStudentBids function
 	bids, errMsg = GetStudentBids(db, studentID, semesterStartDate)
-	if errMsg != "" {
+	switch errMsg {
+	case "":
+		// Return bids array
+		json.NewEncoder(w).Encode(bids)
+	default:
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte("404 - " + errMsg))
-	} else {
-		// Return trips array
+	}
+}
+
+// Get bid records with student ID and semester start date and status
+func GetStudentBidRecordsByStatus(w http.ResponseWriter, r *http.Request) {
+
+	// Valid key for API check
+	if !validKey(r) {
+		w.WriteHeader(http.StatusUnauthorized)
+		w.Write([]byte("401 - Invalid key"))
+		return
+	}
+
+	// Get query string parameters of student ID and semester start date
+	queryString := r.URL.Query()
+	var studentID string
+	fmt.Sscan(queryString["studentID"][0], &studentID)
+	var semesterStartDate string
+	fmt.Sscan(queryString["semesterStartDate"][0], &semesterStartDate)
+	var status string
+	fmt.Sscan(queryString["status"][0], &status)
+
+	var bids []Bid
+	var errMsg string
+
+	// Run db GetStudentBidsByStatus function
+	bids, errMsg = GetStudentBidsByStatus(db, studentID, semesterStartDate, status)
+	switch errMsg {
+	case "":
+		// Return bids array
 		json.NewEncoder(w).Encode(bids)
+	default:
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte("404 - " + errMsg))
 	}
 }
 
@@ -410,24 +645,97 @@ func GetTopClassBidRecords(w http.ResponseWriter, r *http.Request) {
 	fmt.Sscan(queryString["semesterStartDate"][0], &semesterStartDate)
 	var paxNo int
 
-	switch _, okClass := queryString["paxNo"]; okClass {
+	switch _, okPax := queryString["paxNo"]; okPax {
 	case true:
 		fmt.Sscan(queryString["paxNo"][0], &paxNo)
 	default:
 		paxNo = -1
 	}
 
+	var anonKey string
+	var anon bool
+
+	switch _, okAnon := queryString["anonymousKey"]; okAnon {
+	case true:
+		fmt.Sscan(queryString["anonymousKey"][0], &anonKey)
+		switch anonKey {
+		case anonymousKeyPass:
+			anon = false
+		default:
+			anon = true
+		}
+	default:
+	}
+
 	var bids []Bid
 	var errMsg string
 
 	// Run db GetTopClassBids function
-	bids, errMsg = GetTopClassBids(db, classID, semesterStartDate, paxNo)
-	if errMsg != "" {
+	bids, errMsg = GetTopClassBids(db, classID, semesterStartDate, paxNo, anon)
+	switch errMsg {
+	case "":
+		// Return bids array
+		json.NewEncoder(w).Encode(bids)
+	default:
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte("404 - " + errMsg))
-	} else {
-		// Return trips array
+	}
+}
+
+// Get bids records with class ID and semester start date in highest to lowest TokenAmount
+// Specify number retrieved with PaxNo, if none specified get all.
+func GetTopClassBidRecordsByStatus(w http.ResponseWriter, r *http.Request) {
+	// Valid key for API check
+	if !validKey(r) {
+		w.WriteHeader(http.StatusUnauthorized)
+		w.Write([]byte("401 - Invalid key"))
+		return
+	}
+
+	// Get query string parameters of passenger ID and status
+	queryString := r.URL.Query()
+	var classID int
+	fmt.Sscan(queryString["classID"][0], &classID)
+	var semesterStartDate string
+	fmt.Sscan(queryString["semesterStartDate"][0], &semesterStartDate)
+	var status string
+	fmt.Sscan(queryString["status"][0], &status)
+	var paxNo int
+
+	switch _, okPax := queryString["paxNo"]; okPax {
+	case true:
+		fmt.Sscan(queryString["paxNo"][0], &paxNo)
+	default:
+		paxNo = -1
+	}
+
+	var anonKey string
+	var anon bool
+
+	switch _, okAnon := queryString["anonymousKey"]; okAnon {
+	case true:
+		fmt.Sscan(queryString["anonymousKey"][0], &anonKey)
+		switch anonKey {
+		case anonymousKeyPass:
+			anon = false
+		default:
+			anon = true
+		}
+	default:
+	}
+
+	var bids []Bid
+	var errMsg string
+
+	// Run db GetTopClassBidsByStatus function
+	bids, errMsg = GetTopClassBidsByStatus(db, classID, semesterStartDate, paxNo, status, anon)
+	switch errMsg {
+	case "":
+		// Return bids array
 		json.NewEncoder(w).Encode(bids)
+	default:
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte("404 - " + errMsg))
 	}
 }
 
