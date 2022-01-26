@@ -197,7 +197,8 @@ func CreateBid(db *sql.DB, b Bid) {
 
 // Get bid details by bid ID
 func GetBid(db *sql.DB, bidID int) (Bid, string) {
-	query := fmt.Sprintf("SELECT * FROM Bid where BidID = %d", bidID)
+
+	query := fmt.Sprintf("SELECT * FROM Bid where BidID = '%d'", bidID)
 
 	// Get first result, only one exists
 	results := db.QueryRow(query)
@@ -517,6 +518,17 @@ func CreateBidRecord(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte("422 - Please supply all neccessary bid information "))
 		} else { // all not null
 
+			// Run db CreateBid function
+			CreateBid(db, bid)
+
+			errMsg, tokenID := GetTokenID()
+			switch errMsg {
+			case "Success":
+				ETITokenID = tokenID
+			default:
+				panic(err.Error())
+			}
+
 			var transaction Transactions
 			transaction.StudentID = bid.StudentID
 			transaction.ToStudentID = "0"
@@ -525,10 +537,9 @@ func CreateBidRecord(w http.ResponseWriter, r *http.Request) {
 			transaction.Amount = bid.TokenAmount
 
 			SendTokensToAdmin(transaction)
-			// Run db CreateBid function
-			CreateBid(db, bid)
+
 			w.WriteHeader(http.StatusCreated)
-			w.Write([]byte("201 - Bid created for: " + strconv.Itoa(bid.ClassID) + " at " + strconv.Itoa(bid.TokenAmount)))
+			w.Write([]byte("201 - Bid created for: Class " + strconv.Itoa(bid.ClassID) + " at " + strconv.Itoa(bid.TokenAmount) + " Tokens"))
 		}
 	default:
 		w.WriteHeader(http.StatusUnprocessableEntity)
@@ -549,7 +560,7 @@ func GetBidRecordByBidID(w http.ResponseWriter, r *http.Request) {
 	// Get param for bidID
 	params := mux.Vars(r)
 	var bidID int
-	fmt.Sscan(params["BidID"], &bidID)
+	fmt.Sscan(params["bidID"], &bidID)
 
 	var bid Bid
 	var errMsg string
@@ -887,18 +898,11 @@ func main() {
 
 	// Open connection
 	var err error
-	db, err = sql.Open("mysql", "user:password@tcp(127.0.0.1:3306)/asg2_bids")
+	db, err = sql.Open("mysql", "root:asg2_bid_database@tcp(asg2-biddatabase:3306)/asg2_bids")
 
 	// Handle error
 	switch err {
 	case nil:
-		errMsg, tokenID := GetTokenID()
-		switch errMsg {
-		case "Success":
-			ETITokenID = tokenID
-		default:
-			panic(err.Error())
-		}
 	default:
 		panic(err.Error())
 	}
