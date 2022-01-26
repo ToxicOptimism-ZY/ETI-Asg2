@@ -1,0 +1,38 @@
+version: '3.3'
+
+services:
+  asg2-bidservice:
+    depends_on: 
+      - asg2-biddatabase
+    build:
+      context: ./BidService
+    container_name: bid-service
+    hostname: bid-service
+    networks:
+      - bids
+    ports:
+      - 9221:9221
+
+  asg2-biddatabase:
+    build:
+      context: ./BidDatabase
+    container_name: bid-database
+    hostname: bid-database
+    networks:
+     - bids
+    ports:
+      - 9229:9229
+    volumes:
+      - my_sql:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_USER=root
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+      - MYSQL_DATABASE=asg2_bids
+  
+
+volumes:
+  my_sql:
+
+networks:
+  bids:
+    driver: bridge 

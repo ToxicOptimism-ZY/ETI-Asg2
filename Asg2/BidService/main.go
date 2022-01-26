@@ -2,6 +2,7 @@ package main
 
 //==================== Imports ====================
 import (
+	"bytes"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -25,9 +26,35 @@ type Bid struct {
 	Status            string
 }
 
+type Student struct {
+	StudentID    string `json:"student_id"`
+	Name         string `json:"name"`
+	Dob          string `json:"date_of_birth"`
+	Address      string `json:"address"`
+	Phone_number string `json:"phone_number"`
+}
+
+type TokenType struct { // map this type to the record created in the table
+	TokenTypeID   int    //int 5
+	TokenTypeName string //varchar 5
+}
+
+type Transactions struct {
+	TransactionID   int //int 3
+	StudentID       string
+	ToStudentID     string
+	TokenTypeID     int    //int 5
+	TransactionType string //varchar 30
+	Amount          int    //int 3,
+}
+
 var db *sql.DB
+var ETITokenID int
 
 const anonymousKeyPass = "gq123jad9dq"
+const studentURL = "http://10.31.11.12:9211/api/v1/students"
+const tokenURL = "http://10.31.11.12:9071/api/v1/Token"
+const transactionURL = "http://10.31.11.12:9072/api/v1/Transactions"
 
 //==================== Auxiliary Functions ====================
 // Check for valid key within query string
@@ -42,6 +69,113 @@ func validKey(r *http.Request) bool {
 	} else {
 		return false
 	}
+}
+
+//==================== API Callers ====================
+
+//==================== Student API Callers ====================
+
+// Get student particulars
+func GetStudentParticulars(studentID string) (string, Student) {
+
+	// Set up url
+	url := studentURL + "/" + studentID
+
+	// Get method
+	response, err := http.Get(url)
+
+	var student Student
+	var errMsg string
+
+	switch err {
+	case nil:
+		data, _ := ioutil.ReadAll(response.Body)
+		// Get fail or success msg
+		if response.StatusCode == 401 {
+			errMsg = string(data)
+		} else if response.StatusCode == 404 {
+			errMsg = string(data)
+		} else {
+			errMsg = "Success"
+			json.Unmarshal([]byte(data), &student) // Convert json to student details
+		}
+	default:
+		fmt.Printf("The HTTP request failed with error %s\n", err)
+	}
+
+	response.Body.Close()
+
+	return errMsg, student
+}
+
+//==================== Wallet API Callers ====================
+
+// Get token ID
+func GetTokenID() (string, int) {
+
+	// Set up url
+	url := tokenURL + "/search/ETI"
+
+	// Get method
+	response, err := http.Get(url)
+
+	var token TokenType
+	var errMsg string
+	var tokenID int
+
+	switch err {
+	case nil:
+		data, _ := ioutil.ReadAll(response.Body)
+		// Get fail or success msg
+		if response.StatusCode == 401 {
+			errMsg = string(data)
+		} else if response.StatusCode == 404 {
+			errMsg = string(data)
+		} else {
+			errMsg = "Success"
+			json.Unmarshal([]byte(data), &token) // Convert json to student details
+			tokenID = token.TokenTypeID
+		}
+	default:
+		fmt.Printf("The HTTP request failed with error %s\n", err)
+	}
+
+	response.Body.Close()
+
+	return errMsg, tokenID
+}
+
+// Send earmarked tokens to admin, refunding only if bid failed
+func SendTokensToAdmin(transaction Transactions) string {
+
+	// Set up url
+	url := transactionURL + "/maketransaction/" + transaction.StudentID
+
+	// Convert to Json
+	jsonValue, _ := json.Marshal(transaction)
+
+	// Post with object
+	response, err := http.Post(url, "application/json", bytes.NewBuffer(jsonValue))
+
+	var errMsg string
+
+	if err != nil {
+		fmt.Printf("The HTTP request failed with error %s\n", err)
+	} else {
+		data, _ := ioutil.ReadAll(response.Body)
+		// Get fail or success msg
+		if response.StatusCode == 401 {
+			errMsg = string(data)
+		} else if response.StatusCode == 422 {
+			errMsg = string(data)
+		} else {
+			errMsg = "Success"
+		}
+	}
+
+	response.Body.Close()
+
+	return errMsg
 }
 
 //==================== Database functions ====================
@@ -382,6 +516,15 @@ func CreateBidRecord(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusUnprocessableEntity)
 			w.Write([]byte("422 - Please supply all neccessary bid information "))
 		} else { // all not null
+
+			var transaction Transactions
+			transaction.StudentID = bid.StudentID
+			transaction.ToStudentID = "0"
+			transaction.TokenTypeID = ETITokenID
+			transaction.TransactionType = "Earmark"
+			transaction.Amount = bid.TokenAmount
+
+			SendTokensToAdmin(transaction)
 			// Run db CreateBid function
 			CreateBid(db, bid)
 			w.WriteHeader(http.StatusCreated)
@@ -744,10 +887,19 @@ func main() {
 
 	// Open connection
 	var err error
-	db, err = sql.Open("mysql", "user:password@tcp(127.0.0.1:3306)/asg2")
+	db, err = sql.Open("mysql", "user:password@tcp(127.0.0.1:3306)/asg2_bids")
 
 	// Handle error
-	if err != nil {
+	switch err {
+	case nil:
+		errMsg, tokenID := GetTokenID()
+		switch errMsg {
+		case "Success":
+			ETITokenID = tokenID
+		default:
+			panic(err.Error())
+		}
+	default:
 		panic(err.Error())
 	}
 
