@@ -146,7 +146,7 @@ func GetTokenID() (string, int) {
 }
 
 // Send earmarked tokens to admin, refunding only if bid failed
-func SendTokensToAdmin(transaction Transactions) string {
+func SendTokens(transaction Transactions) string {
 
 	// Set up url
 	url := transactionURL + "/maketransaction/" + transaction.StudentID
@@ -184,7 +184,7 @@ func SendTokensToAdmin(transaction Transactions) string {
 func CreateBid(db *sql.DB, b Bid) {
 
 	// BidID is auto incremented
-	query := fmt.Sprintf("INSERT INTO Bid (SemesterStartDate, ClassID, StudentID, StudentName, TokenAmount, `Status`) VALUES ('%s','%d','%s', '%s','%d', '%s')",
+	query := fmt.Sprintf("INSERT INTO Bid (SemesterStartDate, ClassID, StudentID, StudentName, TokenAmount, `Status`) VALUES ('%s',%d,'%s', '%s',%d, '%s')",
 		b.SemesterStartDate, b.ClassID, b.StudentID, b.StudentName, b.TokenAmount, b.Status)
 
 	switch _, err := db.Query(query); err {
@@ -198,7 +198,7 @@ func CreateBid(db *sql.DB, b Bid) {
 // Get bid details by bid ID
 func GetBid(db *sql.DB, bidID int) (Bid, string) {
 
-	query := fmt.Sprintf("SELECT * FROM Bid where BidID = '%d'", bidID)
+	query := fmt.Sprintf("SELECT * FROM Bid where BidID = %d", bidID)
 
 	// Get first result, only one exists
 	results := db.QueryRow(query)
@@ -219,16 +219,20 @@ func GetBid(db *sql.DB, bidID int) (Bid, string) {
 }
 
 // Update bid details by Bid ID
-func UpdateBid(db *sql.DB, bidID int, b Bid) {
+func UpdateBid(db *sql.DB, bidID int, b Bid) string {
 	// Update all details
-	query := fmt.Sprintf("UPDATE Bid SET SemesterStartDate = '%s', ClassID = '%d', StudentID = '%s', StudentName = '%s', TokenAmount = '%d', `Status` = '%s' WHERE BidID = %d",
+	query := fmt.Sprintf("UPDATE Bid SET SemesterStartDate = '%s', ClassID = %d, StudentID = '%s', StudentName = '%s', TokenAmount = %d, `Status` = '%s' WHERE BidID = %d",
 		b.SemesterStartDate, b.ClassID, b.StudentID, b.StudentName, b.TokenAmount, b.Status, bidID)
+
+	var errMsg string
 
 	switch _, err := db.Query(query); err {
 	case nil:
 	default:
-		panic(err.Error())
+		errMsg = "Bid does not exist"
 	}
+
+	return errMsg
 }
 
 // Delete bid details by Bid ID
@@ -377,7 +381,7 @@ func GetStudentBidsByStatus(db *sql.DB, studentID string, semesterStartDate stri
 
 // Get bid by studentID and semester for a particular classID
 func GetStudentBidForClass(db *sql.DB, studentID string, semesterStartDate string, classID int) (Bid, string) {
-	query := fmt.Sprintf("SELECT * FROM Bid where StudentID = '%s' and SemesterStartDate = '%s' and ClassID = '%d'", studentID, semesterStartDate, classID)
+	query := fmt.Sprintf("SELECT * FROM Bid where StudentID = '%s' and SemesterStartDate = '%s' and ClassID = %d", studentID, semesterStartDate, classID)
 
 	// Get first result, only one exists
 	results := db.QueryRow(query)
@@ -405,9 +409,9 @@ func GetTopClassBids(db *sql.DB, classID int, semesterStartDate string, paxNo in
 
 	switch paxNo {
 	case -1:
-		query = fmt.Sprintf("SELECT * FROM Bid where ClassID = '%d' and SemesterStartDate = '%s' Order By TokenAmount DESC", classID, semesterStartDate)
+		query = fmt.Sprintf("SELECT * FROM Bid where ClassID = %d and SemesterStartDate = '%s' Order By TokenAmount DESC", classID, semesterStartDate)
 	default:
-		query = fmt.Sprintf("SELECT * FROM Bid where ClassID = '%d' and SemesterStartDate = '%s' Order By TokenAmount DESC Limit '%d'", classID, semesterStartDate, paxNo)
+		query = fmt.Sprintf("SELECT * FROM Bid where ClassID = %d and SemesterStartDate = '%s' Order By TokenAmount DESC Limit %d", classID, semesterStartDate, paxNo)
 	}
 
 	// Get all results
@@ -464,9 +468,9 @@ func GetTopClassBidsByStatus(db *sql.DB, classID int, semesterStartDate string, 
 
 	switch paxNo {
 	case -1:
-		query = fmt.Sprintf("SELECT * FROM Bid where ClassID = '%d' and SemesterStartDate = '%s' and `Status` = '%s' Order By TokenAmount DESC", classID, semesterStartDate, status)
+		query = fmt.Sprintf("SELECT * FROM Bid where ClassID = %d and SemesterStartDate = '%s' and `Status` = '%s' Order By TokenAmount DESC", classID, semesterStartDate, status)
 	default:
-		query = fmt.Sprintf("SELECT * FROM Bid where ClassID = '%d' and SemesterStartDate = '%s' and `Status` = '%s' Order By TokenAmount DESC Limit '%d'", classID, semesterStartDate, status, paxNo)
+		query = fmt.Sprintf("SELECT * FROM Bid where ClassID = %d and SemesterStartDate = '%s' and `Status` = '%s' Order By TokenAmount DESC Limit %d", classID, semesterStartDate, status, paxNo)
 	}
 
 	// Get all results
@@ -538,27 +542,33 @@ func CreateBidRecord(w http.ResponseWriter, r *http.Request) {
 		if bid.SemesterStartDate == "" || bid.ClassID == 0 || bid.StudentID == "" || bid.StudentName == "" || bid.TokenAmount == 0 || bid.Status == "" {
 			w.WriteHeader(http.StatusUnprocessableEntity)
 			w.Write([]byte("422 - Please supply all neccessary bid information "))
-		} else { // all not null
+		} else if bid.Status != "Pending" && bid.Status != "Success" && bid.Status != "Failed" {
+			w.WriteHeader(http.StatusUnprocessableEntity)
+			w.Write([]byte("422 - Invalid status provided"))
+		} else { // data has no issue
 
-			// Run db CreateBid function
-			CreateBid(db, bid)
-
-			errMsg, tokenID := GetTokenID()
-			switch errMsg {
-			case "Success":
-				ETITokenID = tokenID
-			default:
-				panic(err.Error())
+			if ETITokenID == 0 {
+				errMsg, tokenID := GetTokenID()
+				switch errMsg {
+				case "Success":
+					ETITokenID = tokenID
+				default:
+					panic(err.Error())
+				}
 			}
 
+			//Check if enough funds otherwise error 400 - bad request
 			var transaction Transactions
 			transaction.StudentID = bid.StudentID
-			transaction.ToStudentID = "0"
+			transaction.ToStudentID = "0" // admin account
 			transaction.TokenTypeID = ETITokenID
 			transaction.TransactionType = "Earmark"
 			transaction.Amount = bid.TokenAmount
 
-			SendTokensToAdmin(transaction)
+			SendTokens(transaction)
+
+			// Run db CreateBid function
+			CreateBid(db, bid)
 
 			w.WriteHeader(http.StatusCreated)
 			w.Write([]byte("201 - Bid created for: Class " + strconv.Itoa(bid.ClassID) + " at " + strconv.Itoa(bid.TokenAmount) + " Tokens"))
@@ -627,11 +637,57 @@ func UpdateBidRecord(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusUnprocessableEntity)
 			w.Write([]byte("422 - Please supply all bid information "))
 		} else { // All not null
-			// Run db UpdateBid function
-			UpdateBid(db, bidID, bid)
-			w.WriteHeader(http.StatusAccepted)
-			w.Write([]byte("202 - Bid details updated"))
+
+			if ETITokenID == 0 {
+				errMsg, tokenID := GetTokenID()
+				switch errMsg {
+				case "Success":
+					ETITokenID = tokenID
+				default:
+					panic(err.Error())
+				}
+			}
+
+			// Get the old bid amount
+			oldBid, errMsg := GetBid(db, bidID)
+			switch errMsg {
+			case "Bid does not exist":
+				w.WriteHeader(http.StatusNotFound)
+				w.Write([]byte("404 - No bid found"))
+			default:
+
+				//If a transaction is needed
+				if oldBid.TokenAmount != bid.TokenAmount {
+					// Getting neccessary funds / refunding amount
+					var transaction Transactions
+					transaction.TokenTypeID = ETITokenID
+
+					// If increase in tokens required
+					if oldBid.TokenAmount < bid.TokenAmount {
+						//Check if enough funds otherwise error 400 - bad request
+						transaction.TransactionType = "Earmark"
+						transaction.StudentID = "0" //admin account
+						transaction.ToStudentID = bid.StudentID
+						transaction.Amount = bid.TokenAmount - oldBid.TokenAmount
+					} else if oldBid.TokenAmount > bid.TokenAmount {
+						transaction.TransactionType = "Un-earmark"
+						transaction.StudentID = bid.StudentID
+						transaction.ToStudentID = "0" //admin account
+						transaction.Amount = oldBid.TokenAmount - bid.TokenAmount
+					}
+
+					SendTokens(transaction)
+				}
+
+				// Run db UpdateBid function, no other errors exist due to get bid already checking
+				_ = UpdateBid(db, bidID, bid)
+
+				w.WriteHeader(http.StatusAccepted)
+				w.Write([]byte("202 - Bid details updated"))
+
+			}
 		}
+
 	default:
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		w.Write([]byte("422 - Please supply bid information in JSON format"))
