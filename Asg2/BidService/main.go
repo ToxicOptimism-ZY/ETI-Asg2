@@ -375,6 +375,28 @@ func GetStudentBidsByStatus(db *sql.DB, studentID string, semesterStartDate stri
 	return bids, errMsg
 }
 
+// Get bid by studentID and semester for a particular classID
+func GetStudentBidForClass(db *sql.DB, studentID string, semesterStartDate string, classID int) (Bid, string) {
+	query := fmt.Sprintf("SELECT * FROM Bid where StudentID = '%s' and SemesterStartDate = '%s' and ClassID = '%d'", studentID, semesterStartDate, classID)
+
+	// Get first result, only one exists
+	results := db.QueryRow(query)
+
+	var bid Bid
+	var errMsg string
+
+	// Map result to a bid
+	switch err := results.Scan(&bid.BidID, &bid.SemesterStartDate, &bid.ClassID, &bid.StudentID, &bid.StudentName, &bid.TokenAmount, &bid.Status); err {
+	case sql.ErrNoRows: //If no result
+		errMsg = "Bid does not exist"
+	case nil:
+	default:
+		panic(err.Error())
+	}
+
+	return bid, errMsg
+}
+
 // Get a list of bids length of PaxNo by Class ID, SemesterStartDate in highest to lowest TokenAmount
 // If anonymous == True, don't retrieve names
 func GetTopClassBids(db *sql.DB, classID int, semesterStartDate string, paxNo int, anonymous bool) ([]Bid, string) {
@@ -651,9 +673,11 @@ func GetBidQueryStringValidator(w http.ResponseWriter, r *http.Request) {
 	_, okClass := queryString["classID"]
 	_, okStatus := queryString["status"]
 
-	// If student ID and semester start date passed in, get all student bid records
-	if okStudent && okSemester {
-		if okStatus {
+	// If student ID and semester start date and class ID passed in,
+	if okStudent && okSemester && okClass {
+		GetStudentBidRecordForClass(w, r)
+	} else if okStudent && okSemester { // If student ID and semester start date passed in, get all student bid records
+		if okStatus { //Filter check
 			// Run HTTP GetStudentBidRecordsByStatus function
 			GetStudentBidRecordsByStatus(w, r)
 		} else {
@@ -662,7 +686,7 @@ func GetBidQueryStringValidator(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	} else if okClass && okSemester { // If class ID and semester start date passed in, get top bids
-		if okStatus {
+		if okStatus { //Filter check
 			// Run HTTP GetTopClassBidRecordsByStatus function
 			GetTopClassBidRecordsByStatus(w, r)
 		} else {
@@ -778,6 +802,40 @@ func GetStudentBidRecordsByStatus(w http.ResponseWriter, r *http.Request) {
 	default:
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte("404 - " + errMsg))
+	}
+}
+
+// Get bid record with student ID and semester start date for a particular class
+func GetStudentBidRecordForClass(w http.ResponseWriter, r *http.Request) {
+
+	// Valid key for API check
+	if !validKey(r) {
+		w.WriteHeader(http.StatusUnauthorized)
+		w.Write([]byte("401 - Invalid key"))
+		return
+	}
+
+	// Get query string parameters of student ID and semester start date
+	queryString := r.URL.Query()
+	var studentID string
+	fmt.Sscan(queryString["studentID"][0], &studentID)
+	var semesterStartDate string
+	fmt.Sscan(queryString["semesterStartDate"][0], &semesterStartDate)
+	var classID int
+	fmt.Sscan(queryString["classID"][0], &classID)
+
+	var bid Bid
+	var errMsg string
+
+	// Run db GetBid function
+	bid, errMsg = GetStudentBidForClass(db, studentID, semesterStartDate, classID)
+	switch errMsg {
+	case "No bids found":
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte("404 - " + errMsg))
+	default:
+		// Return bid
+		json.NewEncoder(w).Encode(bid)
 	}
 }
 
