@@ -140,7 +140,7 @@ Returns a single bid in json format.<br/>
 **Error Responses:** <br/>
 
 | Code | Message | Reason |
-| :==: | :=====: | :====: |
+| :---: | :---: | :---: |
 | 401 | Invalid key | Key was not included in query string |
 | 404 | Bid does not exist | Bid referenced by Bid ID does not exist
 
@@ -170,7 +170,7 @@ No Json response. <br/>
 <br/>
 
 | Code | Message | Reason |
-| :==: | :=====: | :====: |
+| :---: | :---: | :---: |
 | 401 | Invalid key | Key was not included in query string |
 | 404 | Bid does not exist | Bid referenced by Bid ID does not exist
 | 422 | Please supply bid information in JSON format | Bid information is not supplied into the request's body in a json format |
@@ -203,7 +203,7 @@ No Json response. <br/>
 <br/>
 
 | Code | Message | Reason |
-| :==: | :=====: | :====: |
+| :---: | :---: | :---: |
 | 401 | Invalid key | Key was not included in query string |
 | 404 | Bid does not exist | Bid referenced by Bid ID does not exist
 
@@ -228,7 +228,7 @@ Returns a list of bids in json format. <br/>
 <br/>
 
 | Code | Message | Reason |
-| :==: | :=====: | :====: |
+| :---: | :---: | :---: |
 | 401 | Invalid key | Key was not included in query string |
 | 404 | Required parameters not found | All combinations of query string for that particular url does not match the query string passed in
 | 404 | No bids made by student that semester | No results found
@@ -254,7 +254,7 @@ Returns a bid in json format. <br/>
 <br/>
 
 | Code | Message | Reason |
-| :==: | :=====: | :====: |
+| :---: | :---: | :---: |
 | 401 | Invalid key | Key was not included in query string |
 | 404 | Required parameters not found | All combinations of query string for that particular url does not match the query string passed in
 | 404 | No bids made that semester with the following status: (status) | No results found
@@ -280,7 +280,7 @@ Returns a list of bids in json format. <br/>
 <br/>
 
 | Code | Message | Reason |
-| :==: | :=====: | :====: |
+| :---: | :---: | :---: |
 | 401 | Invalid key | Key was not included in query string |
 | 404 | Required parameters not found | All combinations of query string for that particular url does not match the query string passed in
 | 404 | No bids made for class that semester | No results found
@@ -306,7 +306,7 @@ Returns a list of bids in json format. <br/>
  <br/>
 
 | Code | Message | Reason |
-| :==: | :=====: | :====: |
+| :---: | :---: | :---: |
 | 401 | Invalid key | Key was not included in query string |
 | 404 | Required parameters not found | All combinations of query string for that particular url does not match the query string passed in
 | 404 | No bids made for class that semester | No results found
@@ -332,7 +332,7 @@ Returns a list of bids in json format. <br/>
 <br/>
 
 | Code | Message | Reason |
-| :==: | :=====: | :====: |
+| :---: | :---: | :---: |
 | 401 | Invalid key | Key was not included in query string |
 | 404 | Required parameters not found | All combinations of query string for that particular url does not match the query string passed in
 | 404 | No bids made by student that semester with the following status: (status) | No results found
@@ -358,7 +358,7 @@ Returns a list of bids in json format.<br/>
 **Error Responses:** <br/>
 
 | Code | Message | Reason |
-| :==: | :=====: | :====: |
+| :---: | :---: | :---: |
 | 401 | Invalid key | Key was not included in query string |
 | 404 | Required parameters not found | All combinations of query string for that particular url does not match the query string passed in
 | 404 | No bids made for class that semester with the following status: (status) | No results found
@@ -384,7 +384,7 @@ Returns a list of bids in json format. <br/>
  <br/>
 
 | Code | Message | Reason |
-| :==: | :=====: | :====: |
+| :---: | :---: | :---: |
 | 401 | Invalid key | Key was not included in query string |
 | 404 | Required parameters not found | All combinations of query string for that particular url does not match the query string passed in
 | 404 | No bids made for class that semester with the following status: (status) | No results found
@@ -411,7 +411,7 @@ Returns a list of bids in json format. <br/>
 <br/>
 
 | Code | Message | Reason |
-| :==: | :=====: | :====: |
+| :---: | :---: | :---: |
 | 401 | Invalid key | Key was not included in query string |
 | 404 | Required parameters not found | All combinations of query string for that particular url does not match the query string passed in
 | 404 | No bids made that semester with the following status: (status) | No results found
