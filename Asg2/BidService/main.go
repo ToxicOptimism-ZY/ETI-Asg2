@@ -392,7 +392,7 @@ func GetStudentBidForClass(db *sql.DB, studentID string, semesterStartDate strin
 	// Map result to a bid
 	switch err := results.Scan(&bid.BidID, &bid.SemesterStartDate, &bid.ClassID, &bid.StudentID, &bid.StudentName, &bid.TokenAmount, &bid.Status); err {
 	case sql.ErrNoRows: //If no result
-		errMsg = "Bid does not exist"
+		errMsg = "No bids made by student that semester"
 	case nil:
 	default:
 		panic(err.Error())
@@ -513,7 +513,7 @@ func GetTopClassBidsByStatus(db *sql.DB, classID int, semesterStartDate string, 
 	switch errMsg {
 	case "":
 	default:
-		errMsg = "No bids made for class that semester"
+		errMsg = "No bids made for class that semester with the following status:" + status
 	}
 
 	return bids, errMsg
@@ -636,6 +636,9 @@ func UpdateBidRecord(w http.ResponseWriter, r *http.Request) {
 		if bid.SemesterStartDate == "" || bid.ClassID == 0 || bid.StudentID == "" || bid.StudentName == "" || bid.TokenAmount == 0 || bid.Status == "" {
 			w.WriteHeader(http.StatusUnprocessableEntity)
 			w.Write([]byte("422 - Please supply all bid information "))
+		} else if bid.Status != "Pending" && bid.Status != "Success" && bid.Status != "Failed" {
+			w.WriteHeader(http.StatusUnprocessableEntity)
+			w.Write([]byte("422 - Invalid status provided"))
 		} else { // All not null
 
 			if ETITokenID == 0 {
@@ -886,12 +889,12 @@ func GetStudentBidRecordForClass(w http.ResponseWriter, r *http.Request) {
 	// Run db GetBid function
 	bid, errMsg = GetStudentBidForClass(db, studentID, semesterStartDate, classID)
 	switch errMsg {
-	case "No bids found":
-		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte("404 - " + errMsg))
-	default:
+	case "":
 		// Return bid
 		json.NewEncoder(w).Encode(bid)
+	default:
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte("404 - " + errMsg))
 	}
 }
 
