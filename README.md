@@ -27,11 +27,11 @@
 
 
 <!-- INTRODUCTION -->
-## Introduction
+## 1 Introduction
 Hi, I am Yap Zhao Yi, the developer of this repository, the codes provided are intended for Ngee Ann Polytechnic's Emerging IT Trends module, october semester 2021. This code covers the bidding dashboard package for the EduFI app. Additionally, as per the content page, explanation will be given for the design considerations, architecture diagram and the functionality for microservices discussed. 
 
 <!-- Bidding Dashboard Package -->
-## Bidding Dashboard Package
+## 2 Bidding Dashboard Package
 As stated in the assignment specification, a semester spans from Monday to Friday and students are able to bid on a class they want to take for the next semester on Saturday. The results of the bidding are then released on Sunday for viewing.
 
 Students can also able to bid using ETI Tokens, are able to view anonymized bids for all classes listed on Saturday before viewing the unanonymized version on Sunday. 
@@ -39,7 +39,7 @@ Students can also able to bid using ETI Tokens, are able to view anonymized bids
 To further improve the user experience, users can view past bids through the semester start date. 
 
 <!-- Structures -->
-## Data Structures
+## 3 Data Structures
 These struct declarations are critical in understanding how the data is laid out, do note that StudentID and ClassID are not defined as foreign keys in the database but are rather used as identifiers. Hence, there is no relations between the entities. <br/> <br/>
 
 
@@ -53,7 +53,6 @@ These struct declarations are critical in understanding how the data is laid out
 | TokenAmount | Integer | The amount of tokens the bid is |
 | Status | Integer | The bid status of "Pending", "Success" or "Failed" |
 
-<br/> <br/>
 Json Version
 ```javascript
 {
@@ -68,7 +67,7 @@ Json Version
 ```
 
 <!-- Bid Microservice Summary -->
-## Bid Microservice Summary
+## 4 Bid Microservice Summary
 
 Base URL: http://10.31.11.12:9221 <br/> <br/>
 
@@ -87,300 +86,340 @@ Base URL: http://10.31.11.12:9221 <br/> <br/>
 | 11 | /api/v1/bids?classID={classID}&semesterStartDate={semesterStartDate}&anonymousKey=gq123jad9dq | GET | Get all unanonymized bids for a class in a particular semester with a certain status
 | 12 | /api/v1/bids?semesterStartDate={semesterStartDate}&status={status} | GET | Get all bids in a particular semester with a certain status
 
-<br/> <br/>
 All the above APIs will require the usage of an authentication key through a query string:
 ?key = "2c78afaf-97da-4816-bbee-9ad239abb298"
 
 <!-- Bid Microservice -->
-## Bid Microservice
+## 5 Bid Microservice
 
-<ol>
-    <li>
-        POST: /api/v1/bids <br />
-        Create new bid, bid ID need not be supplied <br />
-        <br />
-        Request Body: <br/>
-        A bid in json format
-  <br/>
-        Response: <br/>
+### 5.1 POST: /api/v1/bids 
+Create new bid, bid ID need not be supplied <br />
+<br />
 
-        | Code | Message | Reason |
-        | :---: | :---: | :---: |
-        | 201 | Bid created for: Class (classID) at (tokenAmount) Tokens | Successful creation of bid |
+**Request Body:** 
+<br/>
+A bid in json format <br/>
+<br/>
 
-  <br />
-        No Json response. <br/>
+**Response:** <br/>
 
-  <br/>
-        Error Responses: <br/>
+| Code | Message | Reason |
+| :---: | :---: | :---: |
+| 201 | Bid created for: Class (classID) at (tokenAmount) Tokens | Successful creation of bid |
 
-        | Code | Message | Reason |
-        | :---: | :---: | :---: |
-        | 401 | Invalid key | Key was not included in query string |
-        | 422 | Please supply bid information in JSON format | Bid information is not supplied into the request's body in a json format |
-        | 422 | Please supply all neccessary bid information | Some of the attributes required may be null | 
-        | 422 | Invalid status provided | Status is not of "Pending", "Success" or "Failed" |
+No Json response. <br/>
 
-  <br/>
-    </li>
-    <li>
-        GET: /api/v1/bids/{bidID} <br />
-        Get a bid by its bid ID <br />
-        <br />
-        Request Body: <br/>
-        No input required
-  <br/>
-        Response: <br/>
-        No HTTP status response. 
+<br/>
 
-  <br/>
-        Returns a single bid in json format.
-  <br/>
-        Error Responses: <br/>
+**Error Responses:** 
+<br/>
 
-        | Code | Message | Reason |
-        | :==: | :=====: | :====: |
-        | 401 | Invalid key | Key was not included in query string |
-        | 404 | Bid does not exist | Bid referenced by Bid ID does not exist
-  <br/>
-    </li>
-    <li>
-        PUT: /api/v1/bids/{bidID} <br />
-        Update a bid by its bid ID, supplying a json object in accordance to struct <br />
-        <br/>
-        Request Body: <br/>
-        A bid in json format
-        <br/>
-        Response: <br/>
+| Code | Message | Reason |
+| :---: | :---: | :---: |
+| 401 | Invalid key | Key was not included in query string |
+| 422 | Please supply bid information in JSON format | Bid information is not supplied into the request's body in a json format |
+| 422 | Please supply all neccessary bid information | Some of the attributes required may be null | 
+| 422 | Invalid status provided | Status is not of "Pending", "Success" or "Failed" |
 
-        | Code | Message | Reason |
-        | :---: | :---: | :---: |
-        | 202 | Bid details updated | Successful update of bid |
-  
-  <br />
-        No Json response. <br/>
+<br/>
 
-  <br/>
-        Error Responses: <br/>
+### 5.2 GET: /api/v1/bids/{bidID}
+Get a bid by its bid ID <br />
+<br />
 
-        | Code | Message | Reason |
-        | :==: | :=====: | :====: |
-        | 401 | Invalid key | Key was not included in query string |
-        | 404 | Bid does not exist | Bid referenced by Bid ID does not exist
-        | 422 | Please supply bid information in JSON format | Bid information is not supplied into the request's body in a json format |
-        | 422 | Please supply all neccessary bid information | Some of the attributes required may be null | 
-        | 422 | Invalid status provided | Status is not of "Pending", "Success" or "Failed" |
-  <br/>
-    </li>
-    <li>
-        DELETE: /api/v1/bids/{bidID} <br />
-        Delete a bid by its bid ID <br />
-    <br/>
-        Request Body: <br/>
-        A bid in json format
-        <br/>
-        Response: <br/>
+**Request Body:** 
+<br/>
+No input required <br/>
+<br/>
 
-        | Code | Message | Reason |
-        | :---: | :---: | :---: |
-        | 202 | Bid deleted: (bidID) | Successful update of bid |
-  
-  <br />
-        No Json response. <br/>
+**Response:** <br/>
+No HTTP status response. <br/>
+Returns a single bid in json format.<br/>
+<br/>
 
-  <br/>
-        Error Responses: <br/>
+**Error Responses:** <br/>
 
-        | Code | Message | Reason |
-        | :==: | :=====: | :====: |
-        | 401 | Invalid key | Key was not included in query string |
-        | 404 | Bid does not exist | Bid referenced by Bid ID does not exist
-  <br/>
-    </li>
-    <li>
-        GET: /api/v1/bids?studentID={studentID}&semesterStartDate= {semesterStartDate} <br />
-        Get all bids made by a student for a particular semester <br />
-        <br />
-        Request Body: <br/>
-        No input required
-  <br/>
-        Response: <br/>
-        No HTTP status response. 
+| Code | Message | Reason |
+| :==: | :=====: | :====: |
+| 401 | Invalid key | Key was not included in query string |
+| 404 | Bid does not exist | Bid referenced by Bid ID does not exist
 
-  <br/>
-        Returns a list of bids in json format.
-  <br/>
-        Error Responses: <br/>
+<br/>
 
-        | Code | Message | Reason |
-        | :==: | :=====: | :====: |
-        | 401 | Invalid key | Key was not included in query string |
-        | 404 | Required parameters not found | All combinations of query string for that particular url does not match the query string passed in
-        | 404 | No bids made by student that semester | No results found
-  <br/>
-    </li>
-    <li>
-        GET: /api/v1/bids?studentID={studentID}&semesterStartDate= {semesterStartDate}&classID={classID} <br />
-        Get a bid made by a student for a class in a particular semester <br />
-        <br />
-        Request Body: <br/>
-        No input required
-  <br/>
-        Response: <br/>
-        No HTTP status response. 
+### 5.3 PUT: /api/v1/bids/{bidID}
+Update a bid by its bid ID, supplying a json object in accordance to struct <br />
+<br/>
 
-  <br/>
-        Returns a bid in json format.
-  <br/>
-        Error Responses: <br/>
+**Request Body:** 
+<br/>
+A bid in json format <br/>
+<br/>
 
-        | Code | Message | Reason |
-        | :==: | :=====: | :====: |
-        | 401 | Invalid key | Key was not included in query string |
-        | 404 | Required parameters not found | All combinations of query string for that particular url does not match the query string passed in
-        | 404 | No bids made that semester with the following status: (status) | No results found
-  <br/>
-    </li>
-    <li>
-        GET: /api/v1/bids?classID={classID}&semesterStartDate={semesterStartDate} <br />
-         Get all bids made for a class in a particular semester <br />
-        <br />
-        Request Body: <br/>
-        No input required
-  <br/>
-        Response: <br/>
-        No HTTP status response. 
+**Response:** 
+<br/>
 
-  <br/>
-        Returns a list of bids in json format.
-  <br/>
-        Error Responses: <br/>
+| Code | Message | Reason |
+| :---: | :---: | :---: |
+| 202 | Bid details updated | Successful update of bid |
 
-        | Code | Message | Reason |
-        | :==: | :=====: | :====: |
-        | 401 | Invalid key | Key was not included in query string |
-        | 404 | Required parameters not found | All combinations of query string for that particular url does not match the query string passed in
-        | 404 | No bids made for class that semester | No results found
-  <br/>
-    </li>
-    <li>
-        GET: /api/v1/bids?classID={classID}&semesterStartDate={semesterStartDate}&paxNo={paxNo} <br />
-         Get the top bids made for a class in a particular semester <br />
-        <br />
-        Request Body: <br/>
-        No input required
-  <br/>
-        Response: <br/>
-        No HTTP status response. 
+No Json response. <br/>
 
-  <br/>
-        Returns a list of bids in json format.
-  <br/>
-        Error Responses: <br/>
+<br/>
 
-        | Code | Message | Reason |
-        | :==: | :=====: | :====: |
-        | 401 | Invalid key | Key was not included in query string |
-        | 404 | Required parameters not found | All combinations of query string for that particular url does not match the query string passed in
-        | 404 | No bids made for class that semester | No results found
-  <br/>
-    </li>
-     <li>
-        GET:/api/v1/bids?studentID={studentID}&semesterStartDate={semesterStartDate}&status={status} <br />
-         Get all bids made by a student for a particular semester with a certain status <br />
-        <br />
-        Request Body: <br/>
-        No input required
-  <br/>
-        Response: <br/>
-        No HTTP status response. 
+**Error Responses:** 
+<br/>
 
-  <br/>
-        Returns a list of bids in json format.
-  <br/>
-        Error Responses: <br/>
+| Code | Message | Reason |
+| :==: | :=====: | :====: |
+| 401 | Invalid key | Key was not included in query string |
+| 404 | Bid does not exist | Bid referenced by Bid ID does not exist
+| 422 | Please supply bid information in JSON format | Bid information is not supplied into the request's body in a json format |
+| 422 | Please supply all neccessary bid information | Some of the attributes required may be null | 
+| 422 | Invalid status provided | Status is not of "Pending", "Success" or "Failed" |
 
-        | Code | Message | Reason |
-        | :==: | :=====: | :====: |
-        | 401 | Invalid key | Key was not included in query string |
-        | 404 | Required parameters not found | All combinations of query string for that particular url does not match the query string passed in
-        | 404 | No bids made by student that semester with the following status: (status) | No results found
-  <br/>
-    </li>
-    <li>
-        GET:/api/v1/bids?classID={classID}&semesterStartDate={semesterStartDate}&status={status}
-        <br />
-         Get all anonymized bids for a class in a particular semester with a certain status <br />
-        <br />
-        Request Body: <br/>
-        No input required
-  <br/>
-        Response: <br/>
-        No HTTP status response. 
+<br/>
 
-  <br/>
-        Returns a list of bids in json format.
-  <br/>
-        Error Responses: <br/>
+### 5.4 DELETE: /api/v1/bids/{bidID}
+Delete a bid by its bid ID <br />
+<br/>
 
-        | Code | Message | Reason |
-        | :==: | :=====: | :====: |
-        | 401 | Invalid key | Key was not included in query string |
-        | 404 | Required parameters not found | All combinations of query string for that particular url does not match the query string passed in
-        | 404 | No bids made for class that semester with the following status: (status) | No results found
-  <br/>
-    </li>
-        <li>
-        GET:/api/v1/bids?classID={classID}&semesterStartDate={semesterStartDate}&anonymousKey=gq123jad9dq
-        <br />
-         Get all unanonymized bids for a class in a particular semester with a certain status <br />
-        <br />
-        Request Body: <br/>
-        No input required
-  <br/>
-        Response: <br/>
-        No HTTP status response. 
+**Request Body:**
+<br/>
+A bid in json format <br/>
+<br/>
 
-  <br/>
-        Returns a list of bids in json format.
-  <br/>
-        Error Responses: <br/>
+**Response:** 
+<br/>
 
-        | Code | Message | Reason |
-        | :==: | :=====: | :====: |
-        | 401 | Invalid key | Key was not included in query string |
-        | 404 | Required parameters not found | All combinations of query string for that particular url does not match the query string passed in
-        | 404 | No bids made for class that semester with the following status: (status) | No results found
-  <br/>
-    </li>
-        </li>
-        <li>
-        GET:/api/v1/bids?semesterStartDate={semesterStartDate}&status={status}
-        <br />
-         Get all bids in a particular semester with a certain status <br />
-        <br />
-        Request Body: <br/>
-        No input required
-  <br/>
-        Response: <br/>
-        No HTTP status response. 
+| Code | Message | Reason |
+| :---: | :---: | :---: |
+| 202 | Bid deleted: (bidID) | Successful update of bid |
 
-  <br/>
-        Returns a list of bids in json format.
-  <br/>
-        Error Responses: <br/>
+No Json response. <br/>
 
-        | Code | Message | Reason |
-        | :==: | :=====: | :====: |
-        | 401 | Invalid key | Key was not included in query string |
-        | 404 | Required parameters not found | All combinations of query string for that particular url does not match the query string passed in
-        | 404 | No bids made that semester with the following status: (status) | No results found
-  <br/>
-    </li>
- </ol>
+<br/>
+
+**Error Responses:** 
+<br/>
+
+| Code | Message | Reason |
+| :==: | :=====: | :====: |
+| 401 | Invalid key | Key was not included in query string |
+| 404 | Bid does not exist | Bid referenced by Bid ID does not exist
+
+<br/>
+
+### 5.5 GET: /api/v1/bids?studentID={studentID}&semesterStartDate= {semesterStartDate}
+Get all bids made by a student for a particular semester <br />
+<br />
+
+**Request Body:** 
+<br/>
+No input required <br/>
+<br/>
+
+**Response:** 
+<br/>
+No HTTP status response. <br/>
+Returns a list of bids in json format. <br/>
+<br/>
+
+**Error Responses:** 
+<br/>
+
+| Code | Message | Reason |
+| :==: | :=====: | :====: |
+| 401 | Invalid key | Key was not included in query string |
+| 404 | Required parameters not found | All combinations of query string for that particular url does not match the query string passed in
+| 404 | No bids made by student that semester | No results found
+
+<br/>
+
+### 5.6 GET: /api/v1/bids?studentID={studentID}&semesterStartDate= {semesterStartDate}&classID={classID} 
+Get a bid made by a student for a class in a particular semester <br />
+<br />
+
+**Request Body:**
+<br/>
+No input required <br/>
+<br/>
+
+**Response:** 
+<br/>
+No HTTP status response. <br/>
+Returns a bid in json format. <br/>
+<br/>
+
+**Error Responses:** 
+<br/>
+
+| Code | Message | Reason |
+| :==: | :=====: | :====: |
+| 401 | Invalid key | Key was not included in query string |
+| 404 | Required parameters not found | All combinations of query string for that particular url does not match the query string passed in
+| 404 | No bids made that semester with the following status: (status) | No results found
+
+<br/>
+
+### 5.7 GET: /api/v1/bids?classID={classID}&semesterStartDate={semesterStartDate}
+Get all bids made for a class in a particular semester <br />
+<br />
+
+**Request Body:** 
+<br/>
+No input required <br/>
+<br/>
+
+**Response:** 
+<br/>
+No HTTP status response. <br/>
+Returns a list of bids in json format. <br/>
+<br/>
+
+**Error Responses:** 
+<br/>
+
+| Code | Message | Reason |
+| :==: | :=====: | :====: |
+| 401 | Invalid key | Key was not included in query string |
+| 404 | Required parameters not found | All combinations of query string for that particular url does not match the query string passed in
+| 404 | No bids made for class that semester | No results found
+
+<br/>
+
+### 5.8 GET: /api/v1/bids?classID={classID}&semesterStartDate={semesterStartDate}&paxNo={paxNo} <br />
+Get the top bids made for a class in a particular semester <br />
+<br />
+
+**Request Body:**
+<br/>
+No input required <br/>
+<br/>
+
+**Response:** 
+<br/>
+No HTTP status response. <br/>
+Returns a list of bids in json format. <br/>
+<br/>
+
+**Error Responses:**
+ <br/>
+
+| Code | Message | Reason |
+| :==: | :=====: | :====: |
+| 401 | Invalid key | Key was not included in query string |
+| 404 | Required parameters not found | All combinations of query string for that particular url does not match the query string passed in
+| 404 | No bids made for class that semester | No results found
+
+<br/>
+
+### 5.9 GET:/api/v1/bids?studentID={studentID}&semesterStartDate={semesterStartDate}&status={status}
+Get all bids made by a student for a particular semester with a certain status <br />
+<br />
+
+**Request Body:** 
+<br/>
+No input required <br/>
+<br/>
+
+**Response:** 
+<br/>
+No HTTP status response. <br/>
+Returns a list of bids in json format. <br/>
+<br/>
+
+**Error Responses:** 
+<br/>
+
+| Code | Message | Reason |
+| :==: | :=====: | :====: |
+| 401 | Invalid key | Key was not included in query string |
+| 404 | Required parameters not found | All combinations of query string for that particular url does not match the query string passed in
+| 404 | No bids made by student that semester with the following status: (status) | No results found
+
+<br/>
+
+### 5.10 GET:/api/v1/bids?classID={classID}&semesterStartDate={semesterStartDate}&status={status}
+<br />
+  Get all anonymized bids for a class in a particular semester with a certain status <br />
+<br />
+
+**Request Body:** 
+<br/>
+No input required
+<br/>
+
+**Response:**
+ <br/>
+No HTTP status response. <br/>
+Returns a list of bids in json format.<br/>
+<br/>
+
+**Error Responses:** <br/>
+
+| Code | Message | Reason |
+| :==: | :=====: | :====: |
+| 401 | Invalid key | Key was not included in query string |
+| 404 | Required parameters not found | All combinations of query string for that particular url does not match the query string passed in
+| 404 | No bids made for class that semester with the following status: (status) | No results found
+<br/>
+
+# 5.11 GET:/api/v1/bids?classID={classID}&semesterStartDate={semesterStartDate}&anonymousKey=gq123jad9dq
+<br />
+Get all unanonymized bids for a class in a particular semester with a certain status <br />
+<br />
+
+**Request Body:**
+<br/>
+No input required
+<br/>
+
+**Response:**
+<br/>
+No HTTP status response. <br/>
+Returns a list of bids in json format. <br/>
+<br/>
+
+**Error Responses:**
+ <br/>
+
+| Code | Message | Reason |
+| :==: | :=====: | :====: |
+| 401 | Invalid key | Key was not included in query string |
+| 404 | Required parameters not found | All combinations of query string for that particular url does not match the query string passed in
+| 404 | No bids made for class that semester with the following status: (status) | No results found
+
+<br/>
+
+### 5.12 GET:/api/v1/bids?semesterStartDate={semesterStartDate}&status={status}
+<br />
+Get all bids in a particular semester with a certain status <br />
+<br />
+
+**Request Body:**
+<br/>
+No input required
+<br/>
+
+**Response:**
+<br/>
+No HTTP status response. <br/>
+Returns a list of bids in json format. <br/>
+<br/>
+
+**Error Responses:**
+<br/>
+
+| Code | Message | Reason |
+| :==: | :=====: | :====: |
+| 401 | Invalid key | Key was not included in query string |
+| 404 | Required parameters not found | All combinations of query string for that particular url does not match the query string passed in
+| 404 | No bids made that semester with the following status: (status) | No results found
+
+<br/>
 
  <!-- ARCHITECTURE DIAGRAM -->
-## Architecture Diagram
+## 6 Architecture Diagram
 <br />
 <div align="center">
   <a href="https://github.com/ToxicOptimism-ZY/ETI-Asg1">
