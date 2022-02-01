@@ -364,7 +364,7 @@ Returns a list of bids in json format.<br/>
 | 404 | No bids made for class that semester with the following status: (status) | No results found
 <br/>
 
-# 5.11 GET:/api/v1/bids?classID={classID}&semesterStartDate={semesterStartDate}&anonymousKey=gq123jad9dq
+### 5.11 GET:/api/v1/bids?classID={classID}&semesterStartDate={semesterStartDate}&anonymousKey=gq123jad9dq
 <br />
 Get all unanonymized bids for a class in a particular semester with a certain status <br />
 <br />
