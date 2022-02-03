@@ -17,10 +17,13 @@
      Bid Microservice
   </li>
   <li>
+    Bid Front End
+  </li>
+  <li>
      Architecture Diagram
   </li>
   <li>
-    Containerizing the service
+    Containerizing the Service
   </li>
 </ol>
 
@@ -46,12 +49,12 @@ These struct declarations are critical in understanding how the data is laid out
 | Field Name | Type | Description  |
 | :--------: | :---: | :----------: |
 | BidID | Integer | Auto-Incremented Unique ID which identifies the bid |
-| SemesterStartDate | String | Date written as "dd-mm-yyyy" which identifies the semester referenced |
+| SemesterStartDate | String | Date written as "dd-mm-yyyy" which identifies the semester referenced, varchar(10) |
 | ClassID | Integer | Unique ID which identifies the class this bid is for |
-| StudentID | String | Unique ID which identifies the student this bid is made by |
-| StudentName | String | The name of the student this bid is made by |
+| StudentID | String | Unique ID which identifies the student this bid is made by, varchar(9) |
+| StudentName | String | The name of the student this bid is made by, varchar(100) |
 | TokenAmount | Integer | The amount of tokens the bid is |
-| Status | Integer | The bid status of "Pending", "Success" or "Failed" |
+| Status | Integer | The bid status of "Pending", "Success" or "Failed", varchar(50)  |
 
 Json Version
 ```javascript
@@ -311,7 +314,7 @@ Returns a list of bids in json format. <br/>
 | :---: | :---: | :---: |
 | 401 | Invalid key | Key was not included in query string |
 | 404 | Required parameters not found | All combinations of query string for that particular url does not match the query string passed in
-| 404 | No bids made for class that semester | No results found
+| 404 | No bids made for class that semester | No results found |
 
 <br/>
 
@@ -420,16 +423,57 @@ Returns a list of bids in json format. <br/>
 
 <br/>
 
- <!-- ARCHITECTURE DIAGRAM -->
-## 6 Architecture Diagram
+<!-- BID FRONT END -->
+## 6 Bid Front End
+
+<!-- ARCHITECTURE DIAGRAM -->
+## 7 Architecture Diagram
 <br />
 <div align="center">
-  <a href="https://github.com/ToxicOptimism-ZY/ETI-Asg1">
-    <img src="architecture.png" alt="Logo" width="755" height="427">
+  <a href="https://github.com/ToxicOptimism-ZY/ETI-Asg2/Images">
+    <img src="service_architecture.png" alt="Logo" width="755" height="427">
   </a>
 </div>
 <br/>
-As seen here, the bid microservice will communicate with the token and transaction micro services when creating and updating bids. 
+
+As seen here, the bid microservice will communicate with the token micro service to check for sufficient funds, the transaction micro service is then used to earmark tokens when creating and updating bids. 
 
 The database is de-normalized where the student name is also stored, due to the fact that the student's name is unlikely to change at all. This student name however is important when showing the results every sunday through un-anonymized bids. However, in the event that it does change, a go routine pulling service is conducted to retrieve updated names every end of semester.
 
+Class service is used by the front end of bidding dashboard to show all available classes for bidding. 
+
+The timetable service is the service responsible for generating the results of the bids as well as the refunding failed bids.
+
+<!-- CONTAINERIZING THE SERVICE -->
+## 8 Containerizing the Service
+
+### Creating Remote Repository Images With Docker Compose File
+<ol>
+<li>docker-compose up --build -d</li>
+<li>docker-compose down</li>
+<li>docker tag asg2_asg2-bidservice {docker_usename}/{repo_name-bidservice} </li>
+<li>docker tag asg2_asg2-biddatabase {docker_usename}/{repo_name-biddatabase} </li>
+<li>docker push {docker_username}/{repo_name-bidservice} </li>
+<li>docker push {docker_username}/{repo_name-biddatabase} </li>
+</ol>
+
+### Creating Remote Repository Images Without Docker Compose File
+<ol>
+<li>set current directory to folder for bid service via cd ETI-Asg2/Asg2/BidService</li>
+<li>docker build --tag {docker_usename}/{repo_name-bidservice} . </li>
+<li>set current directory to folder for bid service via cd ETI-Asg2/Asg2/BidDatabase
+<li>docker build --tag {docker_usename}/{repo_name-biddatabase} . </li>
+<li>docker push {docker_username}/{repo_name-bidservice} </li>
+<li>docker push {docker_username}/{repo_name-biddatabase} </li>
+</ol>
+
+### Running the Image With Docker Compose File
+<ol>
+<li>docker-compose up --build -d</li>
+</ol>
+
+### Running the Image Without Docker Compose File
+<ol>
+<li>docker run -d -e  MYSQL_ROOT="root" -e MYSQL_ROOT_PASSWORD="asg2_bid_database" -e MYSQL_DATABASE="asg2_bids" -p 9229:9229 --name asg2-biddatabase toxicoptimism/asg2-biddatabase</li>
+<li>docker run -d -p 9221:9221 --name asg2-bidservice {docker_username}/{repo_name-bidservice}<li>
+</ol>
