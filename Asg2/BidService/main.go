@@ -3,6 +3,7 @@ package main
 //==================== Imports ====================
 import (
 	"bytes"
+	"cron"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -81,16 +82,16 @@ func validKey(r *http.Request) bool {
 
 //==================== Student API Callers ====================
 
-// Get student particulars
-func GetStudentParticulars(studentID string) (string, Student) {
+// Get all students
+func GetStudents() (string, []Student) {
 
 	// Set up url
-	url := studentURL + "/" + studentID
+	url := studentURL + "/"
 
 	// Get method
 	response, err := http.Get(url)
 
-	var student Student
+	var students []Student
 	var errMsg string
 
 	switch err {
@@ -103,7 +104,7 @@ func GetStudentParticulars(studentID string) (string, Student) {
 			errMsg = string(data)
 		} else {
 			errMsg = "Success"
-			json.Unmarshal([]byte(data), &student) // Convert json to student details
+			json.Unmarshal([]byte(data), &students) // Convert json to student details
 		}
 	default:
 		fmt.Printf("The HTTP request failed with error %s\n", err)
@@ -111,7 +112,7 @@ func GetStudentParticulars(studentID string) (string, Student) {
 
 	response.Body.Close()
 
-	return errMsg, student
+	return errMsg, students
 }
 
 //==================== Wallet API Callers ====================
@@ -565,6 +566,23 @@ func GetTopClassBidsByStatus(db *sql.DB, classID int, semesterStartDate string, 
 	}
 
 	return bids, errMsg
+}
+
+// Update student names by student ID
+func UpdateStudentName(db *sql.DB, studentID string, studentName string) string {
+	// Update all details
+	query := fmt.Sprintf("UPDATE Bid SET StudentName = '%s' WHERE StudentID = '%s'",
+		studentName, studentID)
+
+	var errMsg string
+
+	switch _, err := db.Query(query); err {
+	case nil:
+	default:
+		errMsg = "No bids exist"
+	}
+
+	return errMsg
 }
 
 //==================== HTTP Functions ====================
@@ -1072,6 +1090,19 @@ func GetTopClassBidRecordsByStatus(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Update every student's name once a saturday
+func UpdateNames(db *sql.DB) {
+	errMsg, students := GetStudents()
+	switch errMsg {
+	case "Success":
+		for _, value := range students {
+			UpdateStudentName(db, value.StudentID, value.Name)
+		}
+	default:
+	}
+
+}
+
 //==================== Main ====================
 func main() {
 
@@ -1098,4 +1129,9 @@ func main() {
 	fmt.Println("Bid Service operating on port 9221")
 	log.Fatal(http.ListenAndServe(":9221", router))
 
+	// Update every student's name once a saturday
+	c := cron.New()
+	c.AddFunc("@weekly", UpdateNames(db))
+	c.Start()
+	c.Stop() // Stop the scheduler (does not stop any jobs already running).
 }
