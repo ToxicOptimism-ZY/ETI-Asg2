@@ -39,6 +39,12 @@ type TokenType struct { // map this type to the record created in the table
 	TokenTypeName string //varchar 5
 }
 
+type TokenTypeBalance struct {
+	TokenTypeID   int
+	TokenTypeName string
+	Balance       int
+}
+
 type Transactions struct {
 	TransactionID   int //int 3
 	StudentID       string
@@ -111,10 +117,10 @@ func GetStudentParticulars(studentID string) (string, Student) {
 //==================== Wallet API Callers ====================
 
 // Get token ID
-func GetTokenID() (string, int) {
+func GetTokenID(tokenName string) (string, int) {
 
 	// Set up url
-	url := tokenURL + "/search/ETI"
+	url := tokenURL + "/search/" + tokenName
 
 	// Get method
 	response, err := http.Get(url)
@@ -143,6 +149,48 @@ func GetTokenID() (string, int) {
 	response.Body.Close()
 
 	return errMsg, tokenID
+}
+
+// Get student balance of ETI tokens
+func GetStudentTokenBalance(studentID string, tokenID int) (string, int) {
+
+	// Set up url
+	url := tokenURL + "/student/" + studentID
+
+	// Get method
+	response, err := http.Get(url)
+
+	var tokens []TokenTypeBalance
+	var errMsg string
+	var balance int
+
+	switch err {
+	case nil:
+		data, _ := ioutil.ReadAll(response.Body)
+		// Get fail or success msg
+		if response.StatusCode == 401 {
+			errMsg = string(data)
+		} else if response.StatusCode == 404 {
+			errMsg = string(data)
+		} else {
+			errMsg = "Success"
+			json.Unmarshal([]byte(data), &tokens) // Convert json to student details
+			for _, value := range tokens {
+				switch value.TokenTypeID {
+				case tokenID:
+					return errMsg, value.Balance
+				default:
+				}
+
+			}
+		}
+	default:
+		fmt.Printf("The HTTP request failed with error %s\n", err)
+	}
+
+	response.Body.Close()
+
+	return errMsg, balance
 }
 
 // Send earmarked tokens to admin, refunding only if bid failed
@@ -548,7 +596,7 @@ func CreateBidRecord(w http.ResponseWriter, r *http.Request) {
 		} else { // data has no issue
 
 			if ETITokenID == 0 {
-				errMsg, tokenID := GetTokenID()
+				errMsg, tokenID := GetTokenID("ETI")
 				switch errMsg {
 				case "Success":
 					ETITokenID = tokenID
@@ -557,21 +605,28 @@ func CreateBidRecord(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 
-			//Check if enough funds otherwise error 400 - bad request
-			var transaction Transactions
-			transaction.StudentID = bid.StudentID
-			transaction.ToStudentID = "0" // admin account
-			transaction.TokenTypeID = ETITokenID
-			transaction.TransactionType = "Earmark"
-			transaction.Amount = bid.TokenAmount
+			_, balance := GetStudentTokenBalance(bid.StudentID, ETITokenID)
 
-			SendTokens(transaction)
+			if balance >= bid.TokenAmount {
+				//Check if enough funds otherwise error 400 - bad request
+				var transaction Transactions
+				transaction.StudentID = bid.StudentID
+				transaction.ToStudentID = "0" // admin account
+				transaction.TokenTypeID = ETITokenID
+				transaction.TransactionType = "Earmark"
+				transaction.Amount = bid.TokenAmount
 
-			// Run db CreateBid function
-			CreateBid(db, bid)
+				SendTokens(transaction)
 
-			w.WriteHeader(http.StatusCreated)
-			w.Write([]byte("201 - Bid created for: Class " + strconv.Itoa(bid.ClassID) + " at " + strconv.Itoa(bid.TokenAmount) + " Tokens"))
+				// Run db CreateBid function
+				CreateBid(db, bid)
+
+				w.WriteHeader(http.StatusCreated)
+				w.Write([]byte("201 - Bid created for: Class " + strconv.Itoa(bid.ClassID) + " at " + strconv.Itoa(bid.TokenAmount) + " Tokens"))
+			} else {
+				w.WriteHeader(http.StatusPaymentRequired)
+				w.Write([]byte("402 - Insufficient balance"))
+			}
 		}
 	default:
 		w.WriteHeader(http.StatusUnprocessableEntity)
@@ -642,7 +697,7 @@ func UpdateBidRecord(w http.ResponseWriter, r *http.Request) {
 		} else { // All not null
 
 			if ETITokenID == 0 {
-				errMsg, tokenID := GetTokenID()
+				errMsg, tokenID := GetTokenID("ETI")
 				switch errMsg {
 				case "Success":
 					ETITokenID = tokenID
@@ -667,23 +722,30 @@ func UpdateBidRecord(w http.ResponseWriter, r *http.Request) {
 
 					// If increase in tokens required
 					if oldBid.TokenAmount < bid.TokenAmount {
-						//Check if enough funds otherwise error 400 - bad request
-						transaction.TransactionType = "Earmark"
-						transaction.StudentID = "0" //admin account
-						transaction.ToStudentID = bid.StudentID
-						transaction.Amount = bid.TokenAmount - oldBid.TokenAmount
+						_, balance := GetStudentTokenBalance(bid.StudentID, ETITokenID)
+
+						if balance > bid.TokenAmount-oldBid.TokenAmount {
+							transaction.TransactionType = "Earmark"
+							transaction.StudentID = bid.StudentID
+							transaction.ToStudentID = "0" //admin account
+							transaction.Amount = bid.TokenAmount - oldBid.TokenAmount
+						} else {
+							w.WriteHeader(http.StatusPaymentRequired)
+							w.Write([]byte("402 - Insufficient balance"))
+							return
+						}
 					} else if oldBid.TokenAmount > bid.TokenAmount {
 						transaction.TransactionType = "Un-earmark"
-						transaction.StudentID = bid.StudentID
-						transaction.ToStudentID = "0" //admin account
+						transaction.StudentID = "0" //admin account
+						transaction.ToStudentID = bid.StudentID
 						transaction.Amount = oldBid.TokenAmount - bid.TokenAmount
 					}
 
 					SendTokens(transaction)
-				}
 
-				// Run db UpdateBid function, no other errors exist due to get bid already checking
-				_ = UpdateBid(db, bidID, bid)
+					// Run db UpdateBid function, no other errors exist due to get bid already checking
+					_ = UpdateBid(db, bidID, bid)
+				}
 
 				w.WriteHeader(http.StatusAccepted)
 				w.Write([]byte("202 - Bid details updated"))

@@ -56,12 +56,12 @@ These struct declarations are critical in understanding how the data is laid out
 Json Version
 ```javascript
 {
-  bidid: 1 
-  semesterstartdate: "02-04-2022"
-  classid: 1
-  studentid: "S10145383"
-  studentname: "Student Name"
-  tokenamount: 23
+  bidid: 1, 
+  semesterstartdate: "02-04-2022",
+  classid: 1,
+  studentid: "S10145383",
+  studentname: "Student Name",
+  tokenamount: 23,
   status: "Pending"
 }
 ```
@@ -117,6 +117,7 @@ No Json response. <br/>
 | Code | Message | Reason |
 | :---: | :---: | :---: |
 | 401 | Invalid key | Key was not included in query string |
+| 402 | Insufficient balance | There is not enough ETI Tokens in the student's account to create that bid|
 | 422 | Please supply bid information in JSON format | Bid information is not supplied into the request's body in a json format |
 | 422 | Please supply all neccessary bid information | Some of the attributes required may be null | 
 | 422 | Invalid status provided | Status is not of "Pending", "Success" or "Failed" |
@@ -172,6 +173,7 @@ No Json response. <br/>
 | Code | Message | Reason |
 | :---: | :---: | :---: |
 | 401 | Invalid key | Key was not included in query string |
+| 402 | Insufficient balance | There is not enough ETI Tokens in the student's account to make that update |
 | 404 | Bid does not exist | Bid referenced by Bid ID does not exist
 | 422 | Please supply bid information in JSON format | Bid information is not supplied into the request's body in a json format |
 | 422 | Please supply all neccessary bid information | Some of the attributes required may be null | 
