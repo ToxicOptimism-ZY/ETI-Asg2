@@ -430,7 +430,7 @@ Returns a list of bids in json format. <br/>
 ## 7 Architecture Diagram
 <br />
 <div align="center">
-  <a href="https://github.com/ToxicOptimism-ZY/ETI-Asg2/Images">
+  <a href="https://github.com/ToxicOptimism-ZY/ETI-Asg2/tree/main/Images">
     <img src="service_architecture.png" alt="Logo" width="755" height="427">
   </a>
 </div>
@@ -475,5 +475,5 @@ The timetable service is the service responsible for generating the results of t
 ### Running the Image Without Docker Compose File
 <ol>
 <li>docker run -d -e  MYSQL_ROOT="root" -e MYSQL_ROOT_PASSWORD="asg2_bid_database" -e MYSQL_DATABASE="asg2_bids" -p 9229:9229 --name asg2-biddatabase toxicoptimism/asg2-biddatabase</li>
-<li>docker run -d -p 9221:9221 --name asg2-bidservice {docker_username}/{repo_name-bidservice}<li>
+<li>docker run -d -p 9221:9221 --name asg2-bidservice {docker_username}/{repo_name-bidservice}</li>
 </ol>
