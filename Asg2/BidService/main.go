@@ -790,15 +790,30 @@ func DeleteBidRecord(w http.ResponseWriter, r *http.Request) {
 	var bidID int
 	fmt.Sscan(params["bidID"], &bidID)
 
-	// Run db DeleteBid function
-	errMsg := DeleteBid(db, bidID)
+	// Run db GetBid function
+	bid, errMsg := GetBid(db, bidID)
+
 	switch errMsg {
 	case "Bid does not exist":
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte("404 - No bid found"))
 	default:
+
+		// Run db DeleteBid function
+		DeleteBid(db, bidID) //No Errors needed, covered by GetBid
+
 		w.WriteHeader(http.StatusAccepted)
 		w.Write([]byte("202 - Bid deleted: " + strconv.Itoa(bidID)))
+
+		var transaction Transactions
+		transaction.TokenTypeID = ETITokenID
+
+		transaction.TransactionType = "Un-earmark"
+		transaction.StudentID = "0" //admin account
+		transaction.ToStudentID = bid.StudentID
+		transaction.Amount = bid.TokenAmount
+
+		SendTokens(transaction)
 	}
 }
 
