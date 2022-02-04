@@ -434,19 +434,19 @@ Returns a list of bids in json format. <br/>
 Created in figma
 <br />
 <div align="center">
-  <a href="https://github.com/ToxicOptimism-ZY/ETI-Asg2/blob/main/Images">
+  <a href="https://github.com/ToxicOptimism-ZY/ETI-Asg2/Images">
     <img src="intended_design3.png" alt="All Classes" width="755" height="427">
   </a>
 </div>
 <br />
 <div align="center">
-  <a href="https://github.com/ToxicOptimism-ZY/ETI-Asg2/blob/main/Images">
+  <a href="https://github.com/ToxicOptimism-ZY/ETI-Asg2/Images">
     <img src="intended_design2.png" alt="Class Bids" width="755" height="427">
   </a>
 </div>
 <br/>
 <div align="center">
-  <a href="https://github.com/ToxicOptimism-ZY/ETI-Asg2/blob/main/Images">
+  <a href="https://github.com/ToxicOptimism-ZY/ETI-Asg2/Images">
     <img src="intended_design1.png" alt="My Bids" width="755" height="427">
   </a>
 </div>
@@ -475,10 +475,33 @@ The timetable service is the service responsible for generating the results of t
 ### Important Consideration
 While micro-services focuses on loose-coupling, the developer has decided to attach the communication with token and transaction in the backend. This is due to the fact that calling it through the front end increases the vulnerability of it to users attempting to exploit the system. For example, a user could attempt to call the creation of the bid without completing a call to the transaction. Hence, there is a need to directly connect the token and transaction micro-service to the bid micro-service.
 
+### API Observed
+Any changes in the following api calls may result in the need to alter this service slightly.
+
+| No | URL | Method | Description  |
+| :---: | :---: | :----: | :----------: |
+| 1 | :9221/api/v1/students/ | GET | Gets a list of all students to update student name regularly
+| 2 | 9101/api/v1/class/ | GET | Get a list of all classes for displaying in bid dashboard
+| 3 | 9101/api/v1/class/{classID} | GET | Gets details of a specific class by its class ID
+| 4 | 9101/api/v1/class?moduleID={searchKey} | GET | Search for classes with the following module Code
+| 5 | 9071/api/v1/Token/search/{tokenName} | GET | Search for tokens with the following token Name
+| 6 | 9071/api/v1/Token/student/{studentID} | GET | Get the balance of all tokens that belong to a student
+| 7 | 9072/api/v1/Transactions/maketransaction/{studentID} | POST | Make a transaction from the following studentID 
+
+### Session Data
+<ol>
+<li>studentID - stored by package 3.1 authentication</li>
+<li>studentName - stored by package 3.1 authentication</li>
+<li>openBidsForClassID - stored by package 3.14 bidding dashboard for the purpose of identifying which class the user wanted to view bids of</li>
+<li>searchedSemesterStartDate - stored by package 3.14 bidding dashboard for the purpose of identifying what semester (history) that the user wants to view</li>
+</ol>
+
 <!-- CONTAINERIZING THE SERVICE -->
 ## 8 Containerizing the Service
-
 ### Docker Image
+Frontend URL: https://hub.docker.com/r/toxicoptimism/asg2-bidfrontend/tags
+Bid Micro-service URL: https://hub.docker.com/r/toxicoptimism/asg2-bidservice/tags
+Database URL: https://hub.docker.com/r/toxicoptimism/asg2-biddatabase/tags
 
 ### Creating Remote Repository Images With Docker Compose File
 <ol>
