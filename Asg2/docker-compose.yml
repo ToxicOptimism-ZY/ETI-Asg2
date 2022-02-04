@@ -7,7 +7,7 @@ services:
       image: bid-frontend
       container_name: bid-frontend
       ports: 
-      - "9220:9220"
+      - 9220:9220
       environment:
       - NGINX_PORT=9220
 
