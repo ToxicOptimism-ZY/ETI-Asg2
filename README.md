@@ -27,11 +27,13 @@
   </li>
 </ol>
 
-
+<br />
 
 <!-- INTRODUCTION -->
 ## 1 Introduction
 Hi, I am Yap Zhao Yi, the developer of this repository, the codes provided are intended for Ngee Ann Polytechnic's Emerging IT Trends module, october semester 2021. This code covers the bidding dashboard package for the EduFI app. Additionally, as per the content page, explanation will be given for the design considerations, architecture diagram and the functionality for micro-services discussed. 
+
+<br />
 
 <!-- Bidding Dashboard Package -->
 ## 2 Bidding Dashboard Package
@@ -40,6 +42,8 @@ As stated in the assignment specification, a semester spans from Monday to Frida
 Students can also able to bid using ETI Tokens, are able to view anonymized bids for all classes listed on Saturday before viewing the unanonymized version on Sunday. 
 
 To further improve the user experience, users can view past bids through the semester start date. 
+
+<br />
 
 <!-- Structures -->
 ## 3 Data Structures
@@ -69,6 +73,8 @@ Json Version
 }
 ```
 
+<br />
+
 <!-- Bid Micro-service Summary -->
 ## 4 Bid Micro-service Summary
 
@@ -96,6 +102,8 @@ Other combinations of query strings:
 /api/v1/bids?classID={classID}&semesterStartDate={semesterStartDate}&status={status}&paxNo={paxNo}&anonymousKey=gq123jad9dq
 
 where any combination of status, paxNo and anonymous key may be used when getting all bids made for a class in a particular semester.
+
+<br />
 
 <!-- Bid Micro-service -->
 ## 5 Bid Micro-service
@@ -454,6 +462,8 @@ Created in figma
 
 Do note that while the front end attempts to reflect the designs, it may not be exact. The micro-service was designed with the neccessary dependencies and api calls directly implemented in the spirit of the assignment collaborating with 22 other students. Hence due to this, the time constraints of the assignment and the relative closeness of assignment deadlines this semester, proper testing of the front end could not be conducted.
 
+<br />
+
 <!-- ARCHITECTURE DIAGRAM -->
 ## 7 Architecture Diagram
 <br />
@@ -495,6 +505,8 @@ Any changes in the following api calls may result in the need to alter this serv
 <li>openBidsForClassID - stored by package 3.14 bidding dashboard for the purpose of identifying which class the user wanted to view bids of</li>
 <li>searchedSemesterStartDate - stored by package 3.14 bidding dashboard for the purpose of identifying what semester (history) that the user wants to view</li>
 </ol>
+
+<br />
 
 <!-- CONTAINERIZING THE SERVICE -->
 ## 8 Containerizing the Service
