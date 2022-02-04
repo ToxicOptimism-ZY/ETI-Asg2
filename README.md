@@ -435,19 +435,19 @@ Created in figma
 <br />
 <div align="center">
   <a href="https://github.com/ToxicOptimism-ZY/ETI-Asg2/Images">
-    <img src="./Images/intended_design3.png" alt="All Classes" width="755" height="427">
+    <img src="./Images/intended_design3.png" alt="All Classes" width="720" height="512">
   </a>
 </div>
 <br />
 <div align="center">
   <a href="https://github.com/ToxicOptimism-ZY/ETI-Asg2/Images">
-    <img src="./Images/intended_design2.png" alt="Class Bids" width="755" height="427">
+    <img src="./Images/intended_design2.png" alt="Class Bids" width="720" height="512">
   </a>
 </div>
 <br/>
 <div align="center">
   <a href="https://github.com/ToxicOptimism-ZY/ETI-Asg2/Images">
-    <img src="./Images/intended_design1.png" alt="My Bids" width="755" height="427">
+    <img src="./Images/intended_design1.png" alt="My Bids" width="720" height="512">
   </a>
 </div>
 <br/>
