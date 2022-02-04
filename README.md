@@ -430,6 +430,29 @@ Returns a list of bids in json format. <br/>
 
 <!-- BID FRONT END -->
 ## 6 Bid Front End
+### Important: These are intended designs
+Created in figma
+<br />
+<div align="center">
+  <a href="https://github.com/ToxicOptimism-ZY/ETI-Asg2/tree/main/Images">
+    <img src="intended_design3.png" alt="Logo" width="755" height="427">
+  </a>
+</div>
+<br />
+<div align="center">
+  <a href="https://github.com/ToxicOptimism-ZY/ETI-Asg2/tree/main/Images">
+    <img src="intended_design2.png" alt="Logo" width="755" height="427">
+  </a>
+</div>
+<br/>
+<div align="center">
+  <a href="https://github.com/ToxicOptimism-ZY/ETI-Asg2/tree/main/Images">
+    <img src="intended_design1.png" alt="Logo" width="755" height="427">
+  </a>
+</div>
+<br/>
+
+Do note that while the front end attempts to reflect the designs, it may not be exact. The micro-service was designed with the neccessary dependencies and api calls directly implemented in the spirit of the assignment collaborating with 22 other students. Hence due to this, the time constraints of the assignment and the relative closeness of assignment deadlines this semester, proper testing of the front end could not be conducted.
 
 <!-- ARCHITECTURE DIAGRAM -->
 ## 7 Architecture Diagram
@@ -454,6 +477,8 @@ While micro-services focuses on loose-coupling, the developer has decided to att
 
 <!-- CONTAINERIZING THE SERVICE -->
 ## 8 Containerizing the Service
+
+### Docker Image
 
 ### Creating Remote Repository Images With Docker Compose File
 <ol>
