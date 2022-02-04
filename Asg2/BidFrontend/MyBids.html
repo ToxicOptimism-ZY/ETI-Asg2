@@ -2,86 +2,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script src="./ClassBids.js"></script>
+    <link href="./BiddingDashboard.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
-    <style>
-        .selectedButton{
-            background: #468F9F;
-            box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-            border-radius: 5px;
-            outline:none;
-            border:none;
-            color:white;
-            padding:0 10px 0 10px; 
-            margin:5px;
-        }
-
-        .fontstyle{
-            font-family: Roboto;
-            font-style: normal;
-            font-weight: normal;
-        }
-        .unselected{
-            background: transparent;
-            outline:none;
-            border:none;
-            color:white;
-            padding:0 5px 0 5px; 
-            margin-right: 60px;
-        }
-        #classModSearch{
-            background: #C0C8CA;
-            box-shadow: inset -4px 4px 4px rgba(0, 0, 0, 0.25);
-            border-radius: 10px;
-            padding: .5em 1em;
-            width:100%;
-            margin-left: 70px;
-        }
-        #semesterStartDate{
-            background: #C0C8CA;
-            box-shadow: inset -4px 4px 4px rgba(0, 0, 0, 0.25);
-            border-radius: 10px;
-            padding: .5em 1em;
-            width:40%;
-            margin-right:12px;
-        }
-        .viewDetails{
-            background: #468F9F;
-            box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-            border-radius: 10px;
-            padding: 20px;
-        }
-        .dataTable{
-            background-color: white;
-            border-radius: 10px;
-            padding: 20px;
-        }
-    </style>
 </head>
+
 <body style='background-color:#E5E5E5;'><!--#E5E5E5-->
-    <div class='row' style='background-color:#2A5660; padding:10px 20px 20px 20px;'>
+    <div class='row' style='background-color:#2A5660; padding:20px 20px 20px 20px;'>
         <div class='col-sm-7 fontstyle' style='display:inline;'>
             <h2 style='color:white; float:left; margin:0 10px 0 60px;'>Bidding dashboard</h2>
         </div>
         <div class='col-sm-5 fontstyle' style='display:inline; text-align:right; padding-left:60px;'>
-            <a href='INSERT LINK HERE'><button class='unselected'>All classes</button></a>
-            <a href='INSERT LINK HERE'><button class='selectedButton'>My bids</button></a>
+            <a href='./AllClasses.html'><button class='unselected'>All classes</button></a>
+            <a href='./MyBids.html'><button class='selectedButton'>My bids</button></a>
         </div>
     </div>
     <div class='row' style='background-color:#2A5660'>
         <div class='col-md-7' style='padding:0px 20px 20px 20px; display:inline-block;'>
-            <label style='color:white; width:40%; margin:0px 10px;'>Bid List</label>
+            <label id="classModule" style='color:white; float:left; margin:0 10px 0 60px;'>Semester Start Date:</label>
         </div>
         <div class='col-md-5'style='padding:0 80px 20px 20px; display:inline-block; text-align:right;'>
                 <label style='color:white; width:40%; margin:0px 10px;'>Semester Start Date:</label>
-                <input id='semesterStartDate' type='text' name='semesterStartDate'>
+                <select id='semesterStartDate' type='text' name='semesterStartDate' onchange="dropDownOnChange()">
+                    
+                </select>   
         </div>
     </div>
     <div class='row' scrolling='auto' style='background-color:#E5E5E5'>
         <div id='scrollList' class = 'col-sm-12'>
-
         </div>
     </div>
 </body>
