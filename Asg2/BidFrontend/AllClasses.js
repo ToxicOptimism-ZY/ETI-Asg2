@@ -56,6 +56,30 @@ function GetClasses(){
     return errMsg, classes
 }
 
+function SearchClasses(searchKey){
+    url = classURL + "/" + "?key=" + key + "&moduleID=" + searchKey;
+    $.ajax({
+        type: "GET",
+        url: url,
+        success: function (response, _) {
+            classes = JSON.parse(response);
+            errMsg = ""
+        },
+        statusCode: {
+            401: function(response) {
+                errMsg = response.responseText
+                classes = null;
+            },
+            404: function(response) {
+                errMsg = response.responseText
+                classes = null;
+            },
+        }
+    });
+    return errMsg, classes
+}
+
+//==================== Bidding API Callers ====================
 function GetStudentBidRecordForClass(studentID, classID, semesterStartDate){
     url = bidURL + "?key=" + key  + "&studentID=" + studentID + "&classID=" + classID + "&semesterStartDate=" + semesterStartDate;
     $.ajax({
@@ -115,22 +139,48 @@ sampleErr = `
 sampleDropDown = `<option value="{0}">{0}</option>`;
 
 //==================== JavaScript ====================
+
+function classLister(classes, studentID, referencedSemesterStartDate) {
+    htmlString = ""
+
+    for (var i = 0; i < classes.length; i++) {
+        synopsis = classes[i].classinfo
+
+        if(synopsis.length > 140) synopsis = synopsis.substring(0,141) + " ..."
+        bid = JSON.parse(GetStudentBidRecordForClass(studentID, classID, referencedSemesterStartDate))
+        tokenAmount = "---"
+        if (bid != null) {
+            tokenAmount = bid.tokenamount
+        }
+        htmlString += sampleClassItem.f(classes[i].moduleid,classes[i].classid,classes[i].rating, tokenAmount, classes[i].classdate,classes[i].start_time,classes[i].end_time,classes[i].tutorname,synopsis)
+    }
+
+    return htmlString
+}
+
 function listAllClasses(studentID, referencedSemesterStartDate) {
     errMsg, classes = JSON.parse(GetClasses())
     htmlString = ""
 
     if (errMsg == "") {
-        for (var i = 0; i < classes.length; i++) {
-            synopsis = classes[i].classinfo
+        htmlString += classLister(classes, studentID, referencedSemesterStartDate)
+    }
+    else if (errMsg.substring(0,3) == 404) {
+        htmlString += sampleErr.f("","No classes could be found.")
+    }
+    else {
+        htmlString += sampleErr.f("It appears an error has occured",errMsg)   
+    }
 
-            if(synopsis.length > 140) synopsis = synopsis.substring(0,141) + " ..."
-            bid = JSON.parse(GetStudentBidRecordForClass(studentID, classID, referencedSemesterStartDate))
-            tokenAmount = "---"
-            if (bid != null) {
-                tokenAmount = bid.tokenamount
-            }
-            htmlString += sampleClassItem.f(classes[i].moduleid,classes[i].classid,classes[i].rating, tokenAmount, classes[i].classdate,classes[i].start_time,classes[i].end_time,classes[i].tutorname,synopsis)
-        }
+    document.getElementById('scrollList').innerHTML = htmlString
+}
+
+function listSearchedClasses(studentID, referencedSemesterStartDate, searchKey) {
+    errMsg, classes = JSON.parse(SearchClasses(searchKey))
+    htmlString = ""
+
+    if (errMsg == "") {
+        htmlString += classLister(classes, studentID, referencedSemesterStartDate)
     }
     else if (errMsg.substring(0,3) == 404) {
         htmlString += sampleErr.f("","No classes could be found.")
@@ -178,3 +228,12 @@ if (sessionStorage.getItem("searchedSemesterStartDate") != null) {
 
 listAllClasses(studentID, searchedSemesterStartDate)
 populateDropDown(date)
+
+classModSearch = document.getElementById('classModSearch')
+
+classModSearch.addEventListener("keyup", function(event) {
+    // Number 13 is the "Enter" key on the keyboard
+    if (event.keyCode === 13) {
+        listSearchedClasses(studentID,searchedSemesterStartDate,classModSearch.value)
+    }
+});
