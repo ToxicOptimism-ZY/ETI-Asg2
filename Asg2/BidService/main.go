@@ -3,7 +3,7 @@ package main
 //==================== Imports ====================
 import (
 	"bytes"
-	"cron"
+	"cron" //used for go routine
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -140,7 +140,7 @@ func GetTokenID(tokenName string) (string, int) {
 			errMsg = string(data)
 		} else {
 			errMsg = "Success"
-			json.Unmarshal([]byte(data), &token) // Convert json to student details
+			json.Unmarshal([]byte(data), &token) // Convert json to token details
 			tokenID = token.TokenTypeID
 		}
 	default:
@@ -175,7 +175,7 @@ func GetStudentTokenBalance(studentID string, tokenID int) (string, int) {
 			errMsg = string(data)
 		} else {
 			errMsg = "Success"
-			json.Unmarshal([]byte(data), &tokens) // Convert json to student details
+			json.Unmarshal([]byte(data), &tokens) // Convert json to tokenTypeBalance details
 			for _, value := range tokens {
 				switch value.TokenTypeID {
 				case tokenID:
@@ -456,6 +456,7 @@ func GetTopClassBids(db *sql.DB, classID int, semesterStartDate string, paxNo in
 
 	var query string
 
+	// If pax provided
 	switch paxNo {
 	case -1:
 		query = fmt.Sprintf("SELECT * FROM Bid where ClassID = %d and SemesterStartDate = '%s' Order By TokenAmount DESC", classID, semesterStartDate)
@@ -480,6 +481,8 @@ func GetTopClassBids(db *sql.DB, classID int, semesterStartDate string, paxNo in
 		// Map a row to a Bid
 		var bid Bid
 		var err error
+
+		// If anonymous, don't retrieve student ID and student Name
 		switch anonymous {
 		case true:
 			var throwAway string
@@ -626,7 +629,7 @@ func CreateBidRecord(w http.ResponseWriter, r *http.Request) {
 			_, balance := GetStudentTokenBalance(bid.StudentID, ETITokenID)
 
 			if balance >= bid.TokenAmount {
-				//Check if enough funds otherwise error 400 - bad request
+				//Check if enough funds otherwise error 402
 				var transaction Transactions
 				transaction.StudentID = bid.StudentID
 				transaction.ToStudentID = "0" // admin account
@@ -742,7 +745,8 @@ func UpdateBidRecord(w http.ResponseWriter, r *http.Request) {
 					if oldBid.TokenAmount < bid.TokenAmount {
 						_, balance := GetStudentTokenBalance(bid.StudentID, ETITokenID)
 
-						if balance > bid.TokenAmount-oldBid.TokenAmount {
+						// If sufficient balance
+						if balance >= bid.TokenAmount-oldBid.TokenAmount {
 							transaction.TransactionType = "Earmark"
 							transaction.StudentID = bid.StudentID
 							transaction.ToStudentID = "0" //admin account
@@ -752,7 +756,7 @@ func UpdateBidRecord(w http.ResponseWriter, r *http.Request) {
 							w.Write([]byte("402 - Insufficient balance"))
 							return
 						}
-					} else if oldBid.TokenAmount > bid.TokenAmount {
+					} else if oldBid.TokenAmount > bid.TokenAmount { // Otherwise if decrease in tokens, refund
 						transaction.TransactionType = "Un-earmark"
 						transaction.StudentID = "0" //admin account
 						transaction.ToStudentID = bid.StudentID
@@ -805,6 +809,7 @@ func DeleteBidRecord(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusAccepted)
 		w.Write([]byte("202 - Bid deleted: " + strconv.Itoa(bidID)))
 
+		// No need to check balance, as its a full refund
 		var transaction Transactions
 		transaction.TokenTypeID = ETITokenID
 
@@ -1003,7 +1008,7 @@ func GetTopClassBidRecords(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get query string parameters of passenger ID and status
+	// Get query string parameters of class ID and semester start date
 	queryString := r.URL.Query()
 	var classID int
 	fmt.Sscan(queryString["classID"][0], &classID)
@@ -1011,6 +1016,7 @@ func GetTopClassBidRecords(w http.ResponseWriter, r *http.Request) {
 	fmt.Sscan(queryString["semesterStartDate"][0], &semesterStartDate)
 	var paxNo int
 
+	// If top pax provided
 	switch _, okPax := queryString["paxNo"]; okPax {
 	case true:
 		fmt.Sscan(queryString["paxNo"][0], &paxNo)
@@ -1018,6 +1024,7 @@ func GetTopClassBidRecords(w http.ResponseWriter, r *http.Request) {
 		paxNo = -1
 	}
 
+	// If anonymous key provided correctly, don't anonymize
 	var anonKey string
 	var anon bool
 
@@ -1068,6 +1075,7 @@ func GetTopClassBidRecordsByStatus(w http.ResponseWriter, r *http.Request) {
 	fmt.Sscan(queryString["status"][0], &status)
 	var paxNo int
 
+	// If top pax provided
 	switch _, okPax := queryString["paxNo"]; okPax {
 	case true:
 		fmt.Sscan(queryString["paxNo"][0], &paxNo)
@@ -1075,6 +1083,7 @@ func GetTopClassBidRecordsByStatus(w http.ResponseWriter, r *http.Request) {
 		paxNo = -1
 	}
 
+	// If anonymous key provided correctly, don't anonymize
 	var anonKey string
 	var anon bool
 
