@@ -1,0 +1,91 @@
+.selectedButton{
+    background: #468F9F;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    border-radius: 5px;
+    outline:none;
+    border:none;
+    color:white;
+    padding:0 10px 0 10px; 
+    margin:5px;
+}
+
+.fontstyle{
+    font-family: Roboto;
+    font-style: normal;
+    font-weight: normal;
+}
+
+.unselected{
+    background: transparent;
+    outline:none;
+    border:none;
+    color:white;
+    padding:0 5px 0 5px; 
+    margin-right: 60px;
+}
+
+.primaryButton{
+    background: #468F9F;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    border-radius: 5px;
+    outline:none;
+    border:none;
+    color:white;
+    padding:0 10px 0 10px; 
+    margin:5px;
+}
+
+.hollowedButton{
+    background: transparent;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    border-radius: 10px;
+    border-width: 3px;
+    outline:none;
+    border-color: #468F9F;
+    color:black;
+    padding:0 10px 0 10px; 
+    margin:5px;
+}
+
+.greyButton{
+    background: transparent;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    border-radius: 10px;
+    border-width: 3px;
+    outline:none;
+    border-color: #6A6A6A;
+    color:#6A6A6A;
+    padding:0 10px 0 10px; 
+    margin:5px;
+}
+
+#classModSearch{
+    background: #C0C8CA;
+    box-shadow: inset -4px 4px 4px rgba(0, 0, 0, 0.25);
+    border-radius: 10px;
+    padding: .5em 1em;
+    width:100%;
+    margin-left: 70px;
+}
+
+#semesterStartDate{
+    background: #C0C8CA;
+    box-shadow: inset -4px 4px 4px rgba(0, 0, 0, 0.25);
+    border-radius: 10px;
+    padding: .5em 1em;
+    width:40%;
+    margin-right:12px;
+}
+
+.viewDetails{
+    background: #468F9F;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.dataTable{
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px;
+}

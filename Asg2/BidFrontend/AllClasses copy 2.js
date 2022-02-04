@@ -292,30 +292,121 @@ function createBid(semesterStartDate, classID, studentID, studentName, tokenAmou
 
 //==================== Templates ====================
 sampleJsonString = '{ bidid: 0, semesterstartdate: "", classid: 0, studentid: "", studentname: "", tokenamount: 0, status: "Pending"}'
+
 sampleClassItem = `
 <div class='row' style='padding:40px 80px 40px 80px;' >
     <div class='col-sm-12 fontstyle dataTable'>
         <table style='border-collapse: collapse; width:100%;'  >
-            <thead>
-                <tr>
-                    <td style='text-align:left;'>
-                        <b id='classTitle'>{0} - {1}</b> 
-                    </td>
-                    <td colspan="2" style="text-align:right;">
-                        {2} Stars
-                    </td>
-                    <td style='text-align: right;'>
-                        Your Bid:    {3}
-                    </td>
-                </tr>           
-            </thead>
+            <tr>
+                <td style='text-align:left;'>
+                    <b id='classTitle'>{0} - {1}</b> 
+                </td>
+                <td colspan="2" style="text-align:right;">
+                    {2} Stars
+                </td>
+                <td style='text-align: right;'>
+                    Your Bid:    {3}
+                </td>
+            </tr>           
             <tr>
                 <td>{4}, {5} - {6}</td>
                 <td colspan="2" style='text-align: right;'>Tutor: {7}</td>
             </tr>
             <tr>
                 <td colspan="3"> {8} </td>
-                <td style='text-align: right;'><a href='INSERT LINK HERE'><button class='viewDetails' classid='{9}' semesterstartdate='{10}' style='color:white; outline:none; border:none;'>View Details</button></a></td>
+                <td style='text-align: right;'><a href='./ClassBids.html'><button class='viewDetails' classid='{9}' onclick='setClassBidsSessionData()' semesterstartdate='{10}' style='color:white; outline:none; border:none;'>View Details</button></a></td>
+            </tr>
+        </table>
+    </div>
+</div>`;
+
+sampleDesc = `
+<div class='row'>
+    <div class='col-sm-12 fontstyle' style='background-color: white;'>
+        <table style='border-collapse: collapse; width:100%;'  >          
+            <tr>
+                <td>{0}, {1} - {2}</td>
+                <td>Tutor: {3}</td>
+                <td colspan="2" style="text-align:right;">
+                {4} Stars
+                </td>
+            </tr>
+            <tr>
+                <td colspan="4"> {8} </td>
+            </tr>
+        </table>
+    </div>
+</div>`;
+
+sampleYourClassBid = `
+<div class='row' style='padding:40px 80px 40px 80px;' >
+    <div class='col-sm-12 fontstyle dataTable'>
+        <table style='border-collapse: collapse; width:100%;'  >
+            <tr>
+                <td style='text-align:left;' colspan="2">
+                    <b id='{0}'>{0}</b> 
+                    <b id='{1}'>{1}</b> 
+                </td>
+                <td>
+                    Status: {2}
+                </td>
+                <td style='text-align: right;'>
+                    <p id="errMsg" style="color:#FF4545"></p>
+                </td>
+                <td style='text-align: right;'>
+                    <label style='color:black; width:40%; margin:0px 10px;'>Bid Amount:</label>
+                    <input id='amount-{3}' type='number' name='bidAmount'>
+                </td>
+                <td style='text-align: right;'>
+                    <button class='hollowedButton' disabled='true'>Delete</button>
+                </td>
+            </td>
+        </table>
+    </div>
+</div>`;
+
+sampleClassBid = `
+<div class='row' style='padding:40px 80px 40px 80px;' >
+    <div class='col-sm-12 fontstyle dataTable'>
+        <table style='border-collapse: collapse; width:100%;'  >
+            <tr>
+                <td style='text-align:left;'>
+                    <b id='{0}'>{0}</b> 
+                    <b id='{1}'>{1}</b> 
+                </td>
+                <td>
+                    Status: {2}
+                </td>
+                <td colspan="2" style='text-align: right;'>
+                    <label style='color:black; width:40%; margin:0px 10px;'>Bid Amount: {3}</label>
+                </td>
+            </td>
+        </table>
+    </div>
+</div>`;
+
+sampleYourBids = `
+<div class='row' style='padding:40px 80px 40px 80px;' >
+    <div class='col-sm-12 fontstyle dataTable'>
+        <table style='border-collapse: collapse; width:100%;'  >
+            <tr>
+                <td style='text-align:left;'>
+                    <b id='classTitle'>{0} - {1}</b> 
+                </td>
+                <td colspan="2" style="text-align:right;">
+                    {2} Stars
+                </td>
+                <td style='text-align: right;'>
+                    Your Bid:    {3}
+                </td>
+            </tr>           
+            <tr>
+                <td>{4}, {5} - {6}</td>
+                <td colspan="2" style='text-align: right;'>Tutor: {7}</td>
+            </tr>
+            <tr>
+                <td colspan="3"> {8} </td>
+                <td style='text-align: right;'><a href='./ClassBids.html'><button class='viewDetails' classid='{9}' onclick='setClassBidsSessionData()' semesterstartdate='{10}' style='color:white; outline:none; border:none;'>View Details</button></a></td>
             </tr>
         </table>
     </div>
@@ -325,9 +416,6 @@ sampleClassItem = `
 function listAllClasses() {
     classes = JSON.parse(GetClasses())
     htmlString = ""
-
-    // check if input vs semesterStartDate, check if valid
-    semesterStartDate = currentSemesterStartDate 
 
     for (var i = 0; i < classes.length; i++) {
         htmlString += sampleClassItem.f(classes[i].modulecode,classes[i].classcode,classes[i].classrating,classes[i].tutorname,classes[i].classinfo,classes[i].classcode)
@@ -354,3 +442,20 @@ function deleteBid() {
 
 
 currentSemesterStartDate = getSemesterStartDate()
+studentID = sessionStorage.getItem("studentID") 
+
+if (sessionStorage.getItem("searchedSemesterStartDate") != null) {
+    searchedSemesterStartDate = sessionStorage.getItem("searchedSemesterStartDate")
+} else {
+    searchedSemesterStartDate = currentSemesterStartDate
+}
+
+semesterStartDateInput = document.getElementById('semesterStartDate')
+
+semesterStartDateInput.addEventListener("keyup", function(event) {
+    // Number 13 is the "Enter" key on the keyboard
+    if (event.keyCode === 13) {
+        searchedSemesterStartDate = semesterStartDateInput.value
+        sessionStorage.setItem("searchedSemesterStartDate", searchedSemesterStartDate);
+    }
+});
