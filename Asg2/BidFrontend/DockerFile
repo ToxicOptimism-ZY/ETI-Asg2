@@ -5,10 +5,10 @@ FROM nginx
 # Set destination for COPY
 WORKDIR /app
 
-COPY index.html /usr/share/nginx/html
-COPY AllClasses.js /usr/share/nginx/html
-COPY ClassBids.html /usr/share/nginx/html
-COPY ClassBids.js /usr/share/nginx/html
-COPY MyBids.html /usr/share/nginx/html
-COPY MyBids.js /usr/share/nginx/html
-COPY BiddingDashboard.css /usr/share/nginx/html
+COPY ./index.html /usr/share/nginx/html
+COPY ./AllClasses.js /usr/share/nginx/html
+COPY ./ClassBids.html /usr/share/nginx/html
+COPY ./ClassBids.js /usr/share/nginx/html
+COPY ./MyBids.html /usr/share/nginx/html
+COPY ./MyBids.js /usr/share/nginx/html
+COPY ./BiddingDashboard.css /usr/share/nginx/html

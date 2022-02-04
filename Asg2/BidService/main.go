@@ -3,7 +3,6 @@ package main
 //==================== Imports ====================
 import (
 	"bytes"
-	"cron" //used for go routine
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -11,6 +10,8 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+
+	"github.com/robfig/cron" //used for go routine
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
@@ -1155,7 +1156,7 @@ func main() {
 
 	// Update every student's name once a saturday
 	c := cron.New()
-	c.AddFunc("@weekly", UpdateNames(db))
+	c.AddFunc("@weekly", func() { UpdateNames(db) })
 	c.Start()
 	c.Stop() // Stop the scheduler (does not stop any jobs already running).
 }

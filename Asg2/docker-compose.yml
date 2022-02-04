@@ -1,10 +1,11 @@
 version: '3.3'
 
 services:
-  asg2-frontend:
+  asg2-bidfrontend:
+      depends_on: 
+        - asg2-bidservice
       build:
-          context: ./BidFrontEnd
-      image: bid-frontend
+          context: ./BidFrontend
       container_name: bid-frontend
       ports: 
       - 9220:9220
