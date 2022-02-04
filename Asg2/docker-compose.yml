@@ -1,6 +1,16 @@
 version: '3.3'
 
 services:
+  asg-frontend:
+      build:
+          context: ./BidFrontEnd
+      image: bid-frontend
+      container_name: bid-frontend
+      ports: 
+      - "9220:80"
+      environment:
+      - NGINX_PORT=80
+
   asg2-bidservice:
     depends_on: 
       - asg2-biddatabase
