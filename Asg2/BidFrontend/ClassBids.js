@@ -228,7 +228,7 @@ sampleYourClassBid = `
                     <input id='amountInput' bidID={3} type='number' name='bidAmount' value={2}>
                 </td>
                 <td style='text-align: right;'>
-                    <button id='deleteAction' class='greyButton' disabled='true' onclick='deleteBid({3})'>Delete</button>
+                    <button id='deleteAction' class='greyButton' disabled='true' onclick='deleteBid({3},{4},{5},{6},{7})'>Delete</button>
                 </td>
             </td>
         </table>
@@ -292,7 +292,7 @@ function listYourBid(studentID, studentName, classID, currentSemesterStartDate, 
 
     if (errMsg == "") {
         if (current) {
-            htmlString += sampleYourClassBid.f(studentName, bid.status, bid.tokenamount, bid.bidid)
+            htmlString += sampleYourClassBid.f(studentName, bid.status, bid.tokenamount, bid.bidid,studentID, studentName, classID, currentSemesterStartDate)
             document.getElementById('deleteAction').classList.add('hollowedButton');
             document.getElementById('deleteAction').classList.remove('greyButton');
             document.getElementById('deleteAction').disabled='false'
@@ -301,7 +301,7 @@ function listYourBid(studentID, studentName, classID, currentSemesterStartDate, 
             htmlString += sampleClassBid.f(i, studentName, bid.status, bid.tokenamount)   
         }
     }
-    else if (errMsg.substring(0,3) == 404) {
+    else if (errMsg.substring(0,3) == "404") {
         if (current) {
             htmlString += sampleYourClassBid.f(studentName, "Pending", 0, null)
         }
@@ -359,7 +359,7 @@ function listBids(studentID, classID, currentSemesterStartDate, referencedSemest
             }
         }
     }
-    else if (errMsg.substring(0,3) == 404) {
+    else if (errMsg.substring(0,3) == "404") {
         htmlString += sampleErr.f("","No bids could be found.")
     }
     else {
@@ -368,8 +368,6 @@ function listBids(studentID, classID, currentSemesterStartDate, referencedSemest
 
     document.getElementById('bids').innerHTML = htmlString
 }
-
-sampleJsonString = '{ bidid: 0, semesterstartdate: "", classid: 0, studentid: "", studentname: "", tokenamount: 0, status: "Pending"}'
 
 function createBid(currentSemesterStartDate, classID, studentID, studentName,tokenAmount) {
     const obj = {}
@@ -384,21 +382,34 @@ function createBid(currentSemesterStartDate, classID, studentID, studentName,tok
 
     CreateBidRecord(jsonString)
     listYourBid(studentID, studentName, classID, currentSemesterStartDate, currentSemesterStartDate)
-    listBids(studentID,classID,currentSemesterStartDate,currentSemesterStartDate)
+    
+    if (errMsg == "") {
+        listBids(studentID,classID,currentSemesterStartDate,currentSemesterStartDate)
+    }
+    else if (errMsg.substring(0,3) == 402) {
+        document.getElementById('errMsg').innerText = "Insufficient Balance"
+    }
 }
 
 function updateBid(bidID, currentSemesterStartDate, classID, studentID, studentName,tokenAmount) {
     bid = JSON.parse(GetBidRecordByBidID(bidID))
     bid.tokenamount = tokenAmount
 
-    const jsonString = JSON.stringify(obj);
+    const jsonString = JSON.stringify(bid);
 
-    UpdateBidRecord(bidID, jsonString)
+    
+    errMsg = UpdateBidRecord(bidID, jsonString)
     listYourBid(studentID, studentName, classID, currentSemesterStartDate, currentSemesterStartDate)
-    listBids(studentID,classID,currentSemesterStartDate,currentSemesterStartDate)
+    
+    if (errMsg == "") {
+        listBids(studentID,classID,currentSemesterStartDate,currentSemesterStartDate)
+    }
+    else if (errMsg.substring(0,3) == 402) {
+        document.getElementById('errMsg').innerText = "Insufficient Balance"
+    }
 }
 
-function deleteBid(bidID) {
+function deleteBid(bidID, studentID, studentName, classID, currentSemesterStartDate) {
 
     DeleteBidRecord(bidID)
     listYourBid(studentID, studentName, classID, currentSemesterStartDate, currentSemesterStartDate)
