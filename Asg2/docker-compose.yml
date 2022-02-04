@@ -7,9 +7,9 @@ services:
       image: bid-frontend
       container_name: bid-frontend
       ports: 
-      - "9220:80"
+      - "9220:9220"
       environment:
-      - NGINX_PORT=80
+      - NGINX_PORT=9220
 
   asg2-bidservice:
     depends_on: 
