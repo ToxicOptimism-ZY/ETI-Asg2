@@ -12,3 +12,8 @@ COPY ./ClassBids.js /usr/share/nginx/html
 COPY ./MyBids.html /usr/share/nginx/html
 COPY ./MyBids.js /usr/share/nginx/html
 COPY ./BiddingDashboard.css /usr/share/nginx/html
+
+# This is for documentation purposes only.
+# To actually open the port, runtime parameters
+# must be supplied to the docker command.
+EXPOSE 9220

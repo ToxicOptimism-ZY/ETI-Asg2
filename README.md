@@ -434,20 +434,20 @@ Returns a list of bids in json format. <br/>
 Created in figma
 <br />
 <div align="center">
-  <a href="https://github.com/ToxicOptimism-ZY/ETI-Asg2/tree/main/Images">
-    <img src="intended_design3.png" alt="Logo" width="755" height="427">
+  <a href="https://github.com/ToxicOptimism-ZY/ETI-Asg2/blob/main/Images">
+    <img src="intended_design3.png" alt="All Classes" width="755" height="427">
   </a>
 </div>
 <br />
 <div align="center">
-  <a href="https://github.com/ToxicOptimism-ZY/ETI-Asg2/tree/main/Images">
-    <img src="intended_design2.png" alt="Logo" width="755" height="427">
+  <a href="https://github.com/ToxicOptimism-ZY/ETI-Asg2/blob/main/Images">
+    <img src="intended_design2.png" alt="Class Bids" width="755" height="427">
   </a>
 </div>
 <br/>
 <div align="center">
-  <a href="https://github.com/ToxicOptimism-ZY/ETI-Asg2/tree/main/Images">
-    <img src="intended_design1.png" alt="Logo" width="755" height="427">
+  <a href="https://github.com/ToxicOptimism-ZY/ETI-Asg2/blob/main/Images">
+    <img src="intended_design1.png" alt="My Bids" width="755" height="427">
   </a>
 </div>
 <br/>
@@ -459,7 +459,7 @@ Do note that while the front end attempts to reflect the designs, it may not be 
 <br />
 <div align="center">
   <a href="https://github.com/ToxicOptimism-ZY/ETI-Asg2/tree/main/Images">
-    <img src="service_architecture.png" alt="Logo" width="755" height="427">
+    <img src="service_architecture.png" alt="Architecture Diagram" width="755" height="427">
   </a>
 </div>
 <br/>
