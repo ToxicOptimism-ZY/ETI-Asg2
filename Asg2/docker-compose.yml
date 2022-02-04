@@ -1,7 +1,7 @@
 version: '3.3'
 
 services:
-  asg-frontend:
+  asg2-frontend:
       build:
           context: ./BidFrontEnd
       image: bid-frontend

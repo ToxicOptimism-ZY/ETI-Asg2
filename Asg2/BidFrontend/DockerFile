@@ -1,4 +1,9 @@
+# syntax=docker/dockerfile:1
+
 FROM nginx
+
+# Set destination for COPY
+WORKDIR /app
 
 COPY index.html /usr/share/nginx/html
 COPY AllClasses.js /usr/share/nginx/html
