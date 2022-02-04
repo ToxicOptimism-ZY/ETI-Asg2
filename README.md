@@ -435,19 +435,19 @@ Created in figma
 <br />
 <div align="center">
   <a href="https://github.com/ToxicOptimism-ZY/ETI-Asg2/Images">
-    <img src="intended_design3.png" alt="All Classes" width="755" height="427">
+    <img src="./Images/intended_design3.png" alt="All Classes" width="755" height="427">
   </a>
 </div>
 <br />
 <div align="center">
   <a href="https://github.com/ToxicOptimism-ZY/ETI-Asg2/Images">
-    <img src="intended_design2.png" alt="Class Bids" width="755" height="427">
+    <img src="./Images/intended_design2.png" alt="Class Bids" width="755" height="427">
   </a>
 </div>
 <br/>
 <div align="center">
   <a href="https://github.com/ToxicOptimism-ZY/ETI-Asg2/Images">
-    <img src="intended_design1.png" alt="My Bids" width="755" height="427">
+    <img src="./Images/intended_design1.png" alt="My Bids" width="755" height="427">
   </a>
 </div>
 <br/>
@@ -459,7 +459,7 @@ Do note that while the front end attempts to reflect the designs, it may not be 
 <br />
 <div align="center">
   <a href="https://github.com/ToxicOptimism-ZY/ETI-Asg2/tree/main/Images">
-    <img src="service_architecture.png" alt="Architecture Diagram" width="755" height="427">
+    <img src="./Images/service_architecture.png" alt="Architecture Diagram" width="755" height="427">
   </a>
 </div>
 <br/>
@@ -509,8 +509,10 @@ Database URL: https://hub.docker.com/r/toxicoptimism/asg2-biddatabase/tags
 <li>docker-compose down</li>
 <li>docker tag asg2_asg2-bidservice {docker_usename}/{repo_name-bidservice} </li>
 <li>docker tag asg2_asg2-biddatabase {docker_usename}/{repo_name-biddatabase} </li>
+<li>docker tag asg2_asg2-bidfrontend {docker_usename}/{repo_name-bidfrontend} </li>
 <li>docker push {docker_username}/{repo_name-bidservice} </li>
 <li>docker push {docker_username}/{repo_name-biddatabase} </li>
+<li>docker push {docker_username}/{repo_name-bidfrontend </li>
 </ol>
 
 ### Creating Remote Repository Images Without Docker Compose File
@@ -519,8 +521,11 @@ Database URL: https://hub.docker.com/r/toxicoptimism/asg2-biddatabase/tags
 <li>docker build --tag {docker_usename}/{repo_name-bidservice} . </li>
 <li>set current directory to folder for bid service via cd ETI-Asg2/Asg2/BidDatabase
 <li>docker build --tag {docker_usename}/{repo_name-biddatabase} . </li>
+<li>set current directory to folder for bid service via cd ETI-Asg2/Asg2/BidFrontend
+<li>docker build --tag {docker_usename}/{repo_name-bidfrontend} . </li>
 <li>docker push {docker_username}/{repo_name-bidservice} </li>
 <li>docker push {docker_username}/{repo_name-biddatabase} </li>
+<li>docker push {docker_username}/{repo_name-bidfrontend} </li>
 </ol>
 
 ### Running the Image With Docker Compose File
@@ -532,4 +537,5 @@ Database URL: https://hub.docker.com/r/toxicoptimism/asg2-biddatabase/tags
 <ol>
 <li>docker run -d -e  MYSQL_ROOT="root" -e MYSQL_ROOT_PASSWORD="asg2_bid_database" -e MYSQL_DATABASE="asg2_bids" -p 9229:9229 --name asg2-biddatabase toxicoptimism/asg2-biddatabase</li>
 <li>docker run -d -p 9221:9221 --name asg2-bidservice {docker_username}/{repo_name-bidservice}</li>
+<li>docker run -d -p 9220:9220 --name asg2-bidservice {docker_username}/{repo_name-bidservice}</li>
 </ol>
