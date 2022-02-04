@@ -511,9 +511,9 @@ Any changes in the following api calls may result in the need to alter this serv
 <!-- CONTAINERIZING THE SERVICE -->
 ## 8 Containerizing the Service
 ### Docker Image
-Frontend URL: https://hub.docker.com/r/toxicoptimism/asg2-bidfrontend/tags
-Bid Micro-service URL: https://hub.docker.com/r/toxicoptimism/asg2-bidservice/tags
-Database URL: https://hub.docker.com/r/toxicoptimism/asg2-biddatabase/tags
+Frontend URL: https://hub.docker.com/r/toxicoptimism/asg2-bidfrontend/tags <br/>
+Bid Micro-service URL: https://hub.docker.com/r/toxicoptimism/asg2-bidservice/tags <br/>
+Database URL: https://hub.docker.com/r/toxicoptimism/asg2-biddatabase/tags <br/>
 
 ### Creating Remote Repository Images With Docker Compose File
 <ol>
