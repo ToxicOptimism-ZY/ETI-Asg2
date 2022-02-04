@@ -4,6 +4,7 @@ const bidURL = "http://10.31.11.12:9221/api/v1/bids"
 const key = "2c78afaf-97da-4816-bbee-9ad239abb298"
 
 //==================== Auxiliary Functions ====================
+
 // Compute the current semester's start date. Saturdays and Sundays will use the next semester's start date.
 function getSemesterStartDate() {
     date = new Date();
@@ -33,6 +34,8 @@ String.prototype.format = String.prototype.f = function() {
 //==================== API Callers ====================
 
 //==================== Class API Callers ====================
+
+// Get all classes
 function GetClasses(){
     url = classURL + "/" + "?key=" + key;
     $.ajax({
@@ -56,6 +59,7 @@ function GetClasses(){
     return errMsg, classes
 }
 
+// Get classes with the following moduleID
 function SearchClasses(searchKey){
     url = classURL + "/" + "?key=" + key + "&moduleID=" + searchKey;
     $.ajax({
@@ -80,6 +84,8 @@ function SearchClasses(searchKey){
 }
 
 //==================== Bidding API Callers ====================
+
+// Get student's bid for a class in a particular semester
 function GetStudentBidRecordForClass(studentID, classID, semesterStartDate){
     url = bidURL + "?key=" + key  + "&studentID=" + studentID + "&classID=" + classID + "&semesterStartDate=" + semesterStartDate;
     $.ajax({
@@ -104,6 +110,8 @@ function GetStudentBidRecordForClass(studentID, classID, semesterStartDate){
 }
 
 //==================== Templates ====================
+
+// Used to populate the content of the html scroll list
 sampleClassItem = `
 <div class='row' style='padding:40px 80px 40px 80px;' >
     <div class='col-sm-12 fontstyle dataTable'>
@@ -131,33 +139,39 @@ sampleClassItem = `
     </div>
 </div>`;
 
+// Used to present any error messages for the content of the html scroll list
 sampleErr = `
 <p class='fontstyle' style='text-align:center'>{0}</p>
 <h1 class='fontstyle' style='text-align:center'>{1}</h1>
 `;
 
+// Used to populate the drop down list of semester start date history
 sampleDropDown = `<option value="{0}">{0}</option>`;
 
 //==================== JavaScript ====================
 
+// List the classes
 function classLister(classes, studentID, referencedSemesterStartDate) {
     htmlString = ""
 
     for (var i = 0; i < classes.length; i++) {
         synopsis = classes[i].classinfo
 
-        if(synopsis.length > 140) synopsis = synopsis.substring(0,141) + " ..."
+        if(synopsis.length > 140) synopsis = synopsis.substring(0,141) + " ..." //limit text length of synopsis in brief display
         bid = JSON.parse(GetStudentBidRecordForClass(studentID, classID, referencedSemesterStartDate))
         tokenAmount = "---"
         if (bid != null) {
             tokenAmount = bid.tokenamount
         }
+
+        // Format the string to replace all {0} with attributes
         htmlString += sampleClassItem.f(classes[i].moduleid,classes[i].classid,classes[i].rating, tokenAmount, classes[i].classdate,classes[i].start_time,classes[i].end_time,classes[i].tutorname,synopsis)
     }
 
     return htmlString
 }
 
+// Call api caller to get all classes to list
 function listAllClasses(studentID, referencedSemesterStartDate) {
     errMsg, classes = JSON.parse(GetClasses())
     htmlString = ""
@@ -165,16 +179,17 @@ function listAllClasses(studentID, referencedSemesterStartDate) {
     if (errMsg == "") {
         htmlString += classLister(classes, studentID, referencedSemesterStartDate)
     }
-    else if (errMsg.substring(0,3) == 404) {
+    else if (errMsg.substring(0,3) == 404) { // Not an urgent error
         htmlString += sampleErr.f("","No classes could be found.")
     }
-    else {
+    else { // Urgent error
         htmlString += sampleErr.f("It appears an error has occured",errMsg)   
     }
 
     document.getElementById('scrollList').innerHTML = htmlString
 }
 
+// Call api caller to get searched classes of the module code to list
 function listSearchedClasses(studentID, referencedSemesterStartDate, searchKey) {
     errMsg, classes = JSON.parse(SearchClasses(searchKey))
     htmlString = ""
@@ -182,26 +197,28 @@ function listSearchedClasses(studentID, referencedSemesterStartDate, searchKey) 
     if (errMsg == "") {
         htmlString += classLister(classes, studentID, referencedSemesterStartDate)
     }
-    else if (errMsg.substring(0,3) == 404) {
+    else if (errMsg.substring(0,3) == 404) { //Not an urgent error
         htmlString += sampleErr.f("","No classes could be found.")
     }
-    else {
+    else { // Urgent error
         htmlString += sampleErr.f("It appears an error has occured",errMsg)   
     }
 
     document.getElementById('scrollList').innerHTML = htmlString
 }
 
+// Set session data before proceeding to next page
 function setClassBidsSessionData(classID) {
     sessionStorage.setItem("openBidsForClassID", classID);
 }
 
+// Populate drop down for semester start date to up to 10 semesters back
 function populateDropDown(date) {
     htmlString = ""
 
     for (var i = 0; i < 10; i++) {
         referencedDate = date;
-        referencedDate.setDate(date.getDate() - 7)
+        referencedDate.setDate(date.getDate() - 7*i)
 
         formattedDate = `${referencedDate.getDate()}-${referencedDate.getMonth()+1}-${referencedDate.getFullYear()}`
         
@@ -211,14 +228,17 @@ function populateDropDown(date) {
     document.getElementById('semesterStartDate').innerHTML = htmlString
 }
 
+// New semester start date selected
 function dropDownOnChange() {
     searchedSemesterStartDate = semesterStartDateInput.value
     sessionStorage.setItem("searchedSemesterStartDate", searchedSemesterStartDate);
 }
 
 //==================== Main ====================
+
+// Get important data
 currentSemesterStartDate, date = getSemesterStartDate()
-studentID = sessionStorage.getItem("studentID") 
+studentID = sessionStorage.getItem("studentID") // From authentication
 
 if (sessionStorage.getItem("searchedSemesterStartDate") != null) {
     searchedSemesterStartDate = sessionStorage.getItem("searchedSemesterStartDate")
@@ -226,9 +246,11 @@ if (sessionStorage.getItem("searchedSemesterStartDate") != null) {
     searchedSemesterStartDate = currentSemesterStartDate
 }
 
+// Populate neccessary html
 listAllClasses(studentID, searchedSemesterStartDate)
 populateDropDown(date)
 
+// Set up search bar, upon pressing enter, update
 classModSearch = document.getElementById('classModSearch')
 
 classModSearch.addEventListener("keyup", function(event) {

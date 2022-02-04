@@ -4,6 +4,7 @@ const bidURL = "http://10.31.11.12:9221/api/v1/bids"
 const key = "2c78afaf-97da-4816-bbee-9ad239abb298"
 
 //==================== Auxiliary Functions ====================
+
 // Compute the current semester's start date. Saturdays and Sundays will use the next semester's start date.
 function getSemesterStartDate() {
     date = new Date();
@@ -33,6 +34,8 @@ String.prototype.format = String.prototype.f = function() {
 //==================== API Callers ====================
 
 //==================== Class API Callers ====================
+
+// Get a class by its class ID
 function GetAClass(classID){
     url = classURL + "/" + classID;
     $.ajax({
@@ -57,6 +60,9 @@ function GetAClass(classID){
 }
 
 //==================== Bidding API Callers ====================
+
+// Get a bid record by its bid ID
+// Note, mostly used here to retrieve all data before updating
 function GetBidRecordByBidID(bidID){
     url = bidURL + "/" + bidID + "?key=" + key;
     $.ajax({
@@ -80,6 +86,7 @@ function GetBidRecordByBidID(bidID){
     return errMsg,bid
 }
 
+// Update a bid record by its bidID via json string
 function UpdateBidRecord(bidID, jsonString){
     url = bidURL + "/" + bidID + "?key=" + key;
     $.ajax({
@@ -89,6 +96,9 @@ function UpdateBidRecord(bidID, jsonString){
         contentType: "application/json",
         statusCode: {
             401: function(response) {
+                errMsg = response.responseText
+            },
+            402: function(response) {
                 errMsg = response.responseText
             },
             404: function(response) {
@@ -105,6 +115,7 @@ function UpdateBidRecord(bidID, jsonString){
     return errMsg
 }
 
+// Delete a bid record by its bidID
 function DeleteBidRecord(bidID){
     url = bidURL + "/" + bidID + "?key=" + key;
     $.ajax({
@@ -122,6 +133,7 @@ function DeleteBidRecord(bidID){
     return errMsg
 }
 
+// Get student's bid for a class in a particular semester
 function GetStudentBidRecords(studentID, semesterStartDate){
     url = bidURL + "?key=" + key  + "&studentID=" + studentID + "&semesterStartDate=" + semesterStartDate;
     $.ajax({
@@ -145,7 +157,9 @@ function GetStudentBidRecords(studentID, semesterStartDate){
 }
 
 //==================== Templates ====================
-sampleYourBids = `
+
+// Used to populate the content of the html your bids
+sampleYourPastBids = `
 <div class='row' style='padding:40px 80px 40px 80px;' >
     <div class='col-sm-12 fontstyle dataTable'>
         <table style='border-collapse: collapse; width:100%;'  >
@@ -160,11 +174,10 @@ sampleYourBids = `
                     <p id="errMsg{9}" style="color:#FF4545"></p>
                 </td>
                 <td style='text-align: right;'>
-                    <label style='color:black; width:40%; margin:0px 10px;'>Bid Amount:</label>
-                    <input id='amountInput' bidID={9} type='number' name='bidAmount' value={3}>
+                    <label style='color:black; width:40%; margin:0px 10px;'>Bid Amount: {3}</label>
                 </d>
                 <td style='text-align: right;'>
-                <button id='deleteAction' class='greyButton' disabled='true' onclick='deleteBid({9})'>Delete</button>
+                <button class='greyButton' disabled='true' onclick='deleteBid({9})'>Delete</button>
             </td>
             </tr>           
             <tr>
@@ -179,6 +192,7 @@ sampleYourBids = `
     </div> 
 </div>`;
 
+// Used to populate the content of the html your bids
 sampleYourBids = `
 <div class='row' style='padding:40px 80px 40px 80px;' >
     <div class='col-sm-12 fontstyle dataTable'>
@@ -195,7 +209,7 @@ sampleYourBids = `
                     <input class='amountInput' bidID={9} type='number' name='bidAmount' value={3}>
                 </d>
                 <td style='text-align: right;'>
-                <button id='deleteAction' class='hollowedButton' onclick='deleteBid({9},{10},{11},{12})'>Delete</button>
+                <button class='hollowedButton' onclick='deleteBid({9},{10},{11},{12})'>Delete</button>
             </td>
             </tr>           
             <tr>
@@ -210,11 +224,13 @@ sampleYourBids = `
     </div> 
 </div>`;
 
+// Used to present any error messages for the content of the html scroll list
 sampleErr = `
 <p class='fontstyle' style='text-align:center'>{0}</p>
 <h1 class='fontstyle' style='text-align:center'>{1}</h1>
 `;
 
+// Used to present any error messages for the content of the html scroll list
 sampleDivErr = `
 <div class='row' style='padding:40px 80px 40px 80px;' >
     <div class='col-sm-12 fontstyle'>
@@ -224,9 +240,11 @@ sampleDivErr = `
 </div>
 `
 
+// Used to populate the drop down list of semester start date history
 sampleDropDown = `<option value="{0}">{0}</option>`;
 
 //==================== JavaScript ====================
+// Displays your bids
 function listYourBids(studentID, studentName, currentSemesterStartDate, referencedSemesterStartDate) {
     
     errMsg, bids = JSON.parse(GetStudentBidRecords(studentID, referencedSemesterStartDate))
@@ -235,34 +253,36 @@ function listYourBids(studentID, studentName, currentSemesterStartDate, referenc
 
     date = new Date();
 
+    // If the referenced semester date is during bidding day and current semester
     if (date.getDay() == 6 && currentSemesterStartDate == referencedSemesterStartDate) {
         current = true
     }
 
-    if (errMsg == "") {
+    if (errMsg == "") { // If bid exists
         for (var i = 0; i < bids.length; i++) {
             errMsg, aClass = JSON.parse(GetAClass(bids[i].classid))
             if (errMsg == "") {
-                if (current) {
-                    htmlString += sampleYourClassBid.f(aClass.moduleid, aClass.classid, aClass.rating, bid.tokenamount,aClass.classdate, aClass.start_time, aClass.end_time, aClass.tutorname, bid.bidID, studentID, studentName, currentSemesterStartDate)
-                } else {
-                    htmlString += sampleClassBid.f(i, studentName, bid.status, bid.tokenamount)   
+                if (current) { // Can alter bid, allow usage of deleting and editing token amount
+                    htmlString += sampleYourBids.f(aClass.moduleid, aClass.classid, aClass.rating, bid.tokenamount,aClass.classdate, aClass.start_time, aClass.end_time, aClass.tutorname, bid.bidID, studentID, studentName, currentSemesterStartDate)
+                } else { // Otherwise disable both
+                    htmlString += sampleYourPastBids.f(aClass.moduleid, aClass.classid, aClass.rating, bid.tokenamount,aClass.classdate, aClass.start_time, aClass.end_time, aClass.tutorname, bid.bidID, studentID, studentName, currentSemesterStartDate)
                 }
             }
-            else {
+            else { // No class information exists anymore
                 htmlString += sampleDivErr.f("It appears an error has occured",errMsg)
             }
         }
     }
-    else if (errMsg.substring(0,3) == 404) {
+    else if (errMsg.substring(0,3) == 404) { // Not urgent error
         htmlString += sampleErr.f("","No bid was made by user.")
     }
-    else {
+    else { // Urgent error
         htmlString += sampleErr.f("It appears an error has occured",errMsg)
     }
 
     document.getElementById('scrollList').innerHTML = htmlString
 
+     // Set up amount inputs, upon pressing enter, update
     amountInputs = document.getElementsByClassName('amountInput')
 
     if (current) {
@@ -270,45 +290,55 @@ function listYourBids(studentID, studentName, currentSemesterStartDate, referenc
             amountInputs[i].addEventListener("keyup", function(event) {
                 // Number 13 is the "Enter" key on the keyboard
                 if (event.keyCode === 13) {
-                    updateBid(amountInput.bidID,currentSemesterStartDate, studentID, studentName,amountInput.value)
+                    updateBid(amountInput.bidID, amountInput.value)
                 }
             });
         }
     }
 }
 
-function updateBid(bidID, currentSemesterStartDate, studentID, studentName,tokenAmount) {
+// Calls api caller to update an existing bid
+function updateBid(bidID, tokenAmount) {
+    
+    // Retrieve all untouched information
     bid = JSON.parse(GetBidRecordByBidID(bidID))
+    
+    // Edit altered information
     bid.tokenamount = tokenAmount
 
+    // Create json string
     const jsonString = JSON.stringify(bid);
 
+    // Call api caller
     errMsg = UpdateBidRecord(bidID, jsonString)
 
-    if (errMsg == "") {
-        listBids(studentID,studentName,currentSemesterStartDate,currentSemesterStartDate)
-    }
-    else if (errMsg.substring(0,3) == 402) {
+    if (errMsg.substring(0,3) == "402") { // If insufficient balance
+        // Error Message
         document.getElementById('errMsg'+bidID).innerText = "Insufficient Balance"
     }
 }
 
+// Calls api caller to delete the bid
 function deleteBid(bidID, studentID, studentName, currentSemesterStartDate) {
 
     DeleteBidRecord(bidID)
+
+    // Update current display
     listYourBids(studentID, studentName, currentSemesterStartDate, currentSemesterStartDate)
 }
 
+// Set session data before proceeding to next page
 function setClassBidsSessionData(classID) {
     sessionStorage.setItem("openBidsForClassID", classID);
 }
 
+// Populate drop down for semester start date to up to 10 semesters back
 function populateDropDown(date) {
     htmlString = ""
 
     for (var i = 0; i < 10; i++) {
         referencedDate = date;
-        referencedDate.setDate(date.getDate() - 7)
+        referencedDate.setDate(date.getDate() - 7*i)
 
         formattedDate = `${referencedDate.getDate()}-${referencedDate.getMonth()+1}-${referencedDate.getFullYear()}`
         
@@ -318,18 +348,22 @@ function populateDropDown(date) {
     document.getElementById('semesterStartDate').innerHTML = htmlString
 }
 
+// New semester start date selected
 function dropDownOnChange() {
     searchedSemesterStartDate = semesterStartDateInput.value
     sessionStorage.setItem("searchedSemesterStartDate", searchedSemesterStartDate);
+
+    // Uses global variables to pass in, as its difficult to work a way to pass in these variables naturally
+    listYourBids(studentID, studentName, classID, currentSemesterStartDate, searchedSemesterStartDate)
 }
 
 
 //==================== Main ====================
 
+// Get important data
 currentSemesterStartDate, date = getSemesterStartDate()
 studentID = sessionStorage.getItem("studentID") 
 studentName = sessionStorage.getItem("studentName") 
-classID = sessionStorage.getItem("openBidsForClassID")
 
 if (sessionStorage.getItem("searchedSemesterStartDate") != null) {
     searchedSemesterStartDate = sessionStorage.getItem("searchedSemesterStartDate")
@@ -337,6 +371,7 @@ if (sessionStorage.getItem("searchedSemesterStartDate") != null) {
     searchedSemesterStartDate = currentSemesterStartDate
 }
 
+// Populate neccessary html
 listYourBids(studentID, studentName, currentSemesterStartDate, searchedSemesterStartDate)
 
 populateDropDown(date)
