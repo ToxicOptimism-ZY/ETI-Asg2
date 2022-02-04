@@ -11,10 +11,10 @@
      Data Structures
   </li>
    <li>
-     Bid Microservice Summary
+     Bid Micro-service Summary
   </li>
   <li>
-     Bid Microservice
+     Bid Micro-service
   </li>
   <li>
     Bid Front End
@@ -31,7 +31,7 @@
 
 <!-- INTRODUCTION -->
 ## 1 Introduction
-Hi, I am Yap Zhao Yi, the developer of this repository, the codes provided are intended for Ngee Ann Polytechnic's Emerging IT Trends module, october semester 2021. This code covers the bidding dashboard package for the EduFI app. Additionally, as per the content page, explanation will be given for the design considerations, architecture diagram and the functionality for microservices discussed. 
+Hi, I am Yap Zhao Yi, the developer of this repository, the codes provided are intended for Ngee Ann Polytechnic's Emerging IT Trends module, october semester 2021. This code covers the bidding dashboard package for the EduFI app. Additionally, as per the content page, explanation will be given for the design considerations, architecture diagram and the functionality for micro-services discussed. 
 
 <!-- Bidding Dashboard Package -->
 ## 2 Bidding Dashboard Package
@@ -69,8 +69,8 @@ Json Version
 }
 ```
 
-<!-- Bid Microservice Summary -->
-## 4 Bid Microservice Summary
+<!-- Bid Micro-service Summary -->
+## 4 Bid Micro-service Summary
 
 Base URL: http://10.31.11.12:9221 <br/> <br/>
 
@@ -92,8 +92,13 @@ Base URL: http://10.31.11.12:9221 <br/> <br/>
 All the above APIs will require the usage of an authentication key through a query string:
 ?key = "2c78afaf-97da-4816-bbee-9ad239abb298"
 
-<!-- Bid Microservice -->
-## 5 Bid Microservice
+Other combinations of query strings:
+/api/v1/bids?classID={classID}&semesterStartDate={semesterStartDate}&status={status}&paxNo={paxNo}&anonymousKey=gq123jad9dq
+
+where any combination of status, paxNo and anonymous key may be used when getting all bids made for a class in a particular semester.
+
+<!-- Bid Micro-service -->
+## 5 Bid Micro-service
 
 ### 5.1 POST: /api/v1/bids 
 Create new bid, bid ID need not be supplied <br />
@@ -436,13 +441,16 @@ Returns a list of bids in json format. <br/>
 </div>
 <br/>
 
-As seen here, the bid microservice will communicate with the token micro service to check for sufficient funds, the transaction micro service is then used to earmark tokens when creating and updating bids. 
+As seen here, the bid micro-service will communicate with the token micro-service to check for sufficient funds, the transaction micro-service is then used to earmark tokens when creating and updating bids. 
 
 The database is de-normalized where the student name is also stored, due to the fact that the student's name is unlikely to change at all. This student name however is important when showing the results every sunday through un-anonymized bids. However, in the event that it does change, a go routine pulling service is conducted to retrieve updated names every end of semester.
 
 Class service is used by the front end of bidding dashboard to show all available classes for bidding. 
 
 The timetable service is the service responsible for generating the results of the bids as well as the refunding failed bids.
+
+### Important Consideration
+While micro-services focuses on loose-coupling, the developer has decided to attach the communication with token and transaction in the backend. This is due to the fact that calling it through the front end increases the vulnerability of it to users attempting to exploit the system. For example, a user could attempt to call the creation of the bid without completing a call to the transaction. Hence, there is a need to directly connect the token and transaction micro-service to the bid micro-service.
 
 <!-- CONTAINERIZING THE SERVICE -->
 ## 8 Containerizing the Service
