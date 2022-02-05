@@ -515,6 +515,11 @@ Frontend URL: https://hub.docker.com/r/toxicoptimism/asg2-bidfrontend/tags <br/>
 Bid Micro-service URL: https://hub.docker.com/r/toxicoptimism/asg2-bidservice/tags <br/>
 Database URL: https://hub.docker.com/r/toxicoptimism/asg2-biddatabase/tags <br/>
 
+### Port Number for Services
+The front end is run on port 9220, <br/>
+The micro-service is run on port 9221, <br/>
+The database is run on port 9229. <br/>
+
 ### Creating Remote Repository Images With Docker Compose File
 <ol>
 <li>docker-compose up --build -d</li>
@@ -551,3 +556,4 @@ Database URL: https://hub.docker.com/r/toxicoptimism/asg2-biddatabase/tags <br/>
 <li>docker run -d -p 9221:9221 --name asg2-bidservice {docker_username}/{repo_name-bidservice}</li>
 <li>docker run -d -p 9220:9220 --name asg2-bidservice {docker_username}/{repo_name-bidservice}</li>
 </ol>
+
