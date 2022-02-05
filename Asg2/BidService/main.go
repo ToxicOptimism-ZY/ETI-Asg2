@@ -766,9 +766,10 @@ func UpdateBidRecord(w http.ResponseWriter, r *http.Request) {
 
 					SendTokens(transaction)
 
-					// Run db UpdateBid function, no other errors exist due to get bid already checking
-					_ = UpdateBid(db, bidID, bid)
 				}
+
+				// Run db UpdateBid function, no other errors exist due to get bid already checking
+				_ = UpdateBid(db, bidID, bid)
 
 				w.WriteHeader(http.StatusAccepted)
 				w.Write([]byte("202 - Bid details updated"))
@@ -804,12 +805,6 @@ func DeleteBidRecord(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("404 - No bid found"))
 	default:
 
-		// Run db DeleteBid function
-		DeleteBid(db, bidID) //No Errors needed, covered by GetBid
-
-		w.WriteHeader(http.StatusAccepted)
-		w.Write([]byte("202 - Bid deleted: " + strconv.Itoa(bidID)))
-
 		// No need to check balance, as its a full refund
 		var transaction Transactions
 		transaction.TokenTypeID = ETITokenID
@@ -820,6 +815,12 @@ func DeleteBidRecord(w http.ResponseWriter, r *http.Request) {
 		transaction.Amount = bid.TokenAmount
 
 		SendTokens(transaction)
+
+		// Run db DeleteBid function
+		DeleteBid(db, bidID) //No Errors needed, covered by GetBid
+
+		w.WriteHeader(http.StatusAccepted)
+		w.Write([]byte("202 - Bid deleted: " + strconv.Itoa(bidID)))
 	}
 }
 
