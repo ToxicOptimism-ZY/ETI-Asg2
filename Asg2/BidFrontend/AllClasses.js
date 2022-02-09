@@ -280,7 +280,7 @@ function listAllClasses(studentID, referencedSemesterStartDate) {
             htmlString += sampleErr.f("","No classes could be found.")
         }
     }
-    else if (errMsg.substring(0,3) == 404) { // Not an urgent error
+    else if (errMsg.substring(0,3) == "404") { // Not an urgent error
         htmlString += sampleErr.f("","No classes could be found.")
         console.log(htmlString)
     }
@@ -305,7 +305,7 @@ function listSearchedClasses(studentID, referencedSemesterStartDate, searchKey) 
             htmlString += sampleErr.f("","No classes could be found.")
         }
     }
-    else if (errMsg.substring(0,3) == 404) { //Not an urgent error
+    else if (errMsg.substring(0,3) == "404") { //Not an urgent error
         htmlString += sampleErr.f("","No classes could be found.")
     }
     else { // Urgent error
