@@ -179,16 +179,16 @@ async function GetStudentBidRecords(studentID, semesterStartDate){
         },
         statusCode: {
             401: function(response) {
-                console.log(response.responseText)
+                errMsg = response.responseText
                 bids = []
             },
             404: function(response) {
-                console.log(response.responseText)
+                errMsg = response.responseText
                 bids = []
             },
         }
     });
-    return bids
+    return [errMsg,bids]
 }
 
 //==================== Templates ====================

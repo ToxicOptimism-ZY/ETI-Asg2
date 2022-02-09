@@ -209,7 +209,7 @@ async function GetStudentBidRecordForClass(studentID, classID, semesterStartDate
                 bid = null
             },
             404: function(response) {
-                console.log(response.responseText)
+                errMsg = response.responseText
                 bid = null
             },
         }
@@ -240,7 +240,7 @@ async function GetTopClassBidRecords(classID, semesterStartDate, anonKey){
                 bids = null
             },
             404: function(response) {
-                console.log(response.responseText)
+                errMsg = response.responseText
                 bids = null
             },
         }
