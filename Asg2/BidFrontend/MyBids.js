@@ -371,8 +371,12 @@ if (sessionStorage.getItem("searchedSemesterStartDate") != null) {
     searchedSemesterStartDate = currentSemesterStartDate
 }
 
+if (studentID != null) {
 // Populate neccessary html
 listYourBids(studentID, studentName, currentSemesterStartDate, searchedSemesterStartDate)
+} else {
+    document.getElementById('scrollList').innerHTML = sampleDivErr.f("It appears an error has occured","User not authenticated")
+}
 
 populateDropDown(date)
 

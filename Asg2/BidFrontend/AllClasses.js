@@ -246,8 +246,13 @@ if (sessionStorage.getItem("searchedSemesterStartDate") != null) {
     searchedSemesterStartDate = currentSemesterStartDate
 }
 
-// Populate neccessary html
-listAllClasses(studentID, searchedSemesterStartDate)
+if (studentID != null) {
+    // Populate neccessary html
+    listAllClasses(studentID, searchedSemesterStartDate)
+} else {
+    document.getElementById('scrollList').innerHTML = sampleDivErr.f("It appears an error has occured","User not authenticated")
+}
+    
 populateDropDown(date)
 
 // Set up search bar, upon pressing enter, update
@@ -255,7 +260,7 @@ classModSearch = document.getElementById('classModSearch')
 
 classModSearch.addEventListener("keyup", function(event) {
     // Number 13 is the "Enter" key on the keyboard
-    if (event.keyCode === 13) {
+    if (event.keyCode === 13 && studentID != null) {
         listSearchedClasses(studentID,searchedSemesterStartDate,classModSearch.value)
     }
 });

@@ -524,12 +524,20 @@ if (sessionStorage.getItem("searchedSemesterStartDate") != null) {
     searchedSemesterStartDate = currentSemesterStartDate
 }
 
-// From choosing view detail button
-classID = sessionStorage.getItem("openBidsForClassID")
+if (studentID != null) {
+    // From choosing view detail button
+    classID = sessionStorage.getItem("openBidsForClassID")
 
-// Populate neccessary html
-listClassDesc(classID)
-listYourBid(studentID, studentName, classID, currentSemesterStartDate, searchedSemesterStartDate)
-listBids(studentID, classID, currentSemesterStartDate, searchedSemesterStartDate) 
+    if (classID != null) {
+        // Populate neccessary html
+        listClassDesc(classID)
+        listYourBid(studentID, studentName, classID, currentSemesterStartDate, searchedSemesterStartDate)
+        listBids(studentID, classID, currentSemesterStartDate, searchedSemesterStartDate) 
+    } else {
+        document.getElementById('scrollList').innerHTML = sampleDivErr.f("It appears an error has occured","No class was selected") 
+    }
+} else {
+    document.getElementById('scrollList').innerHTML = sampleDivErr.f("It appears an error has occured","User not authenticated")
+}
 
 populateDropDown(date)
