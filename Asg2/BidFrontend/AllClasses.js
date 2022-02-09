@@ -165,7 +165,7 @@ function classLister(classes, studentID, referencedSemesterStartDate) {
         }
 
         // Format the string to replace all {0} with attributes
-        htmlString += sampleClassItem.f(classes[i].moduleid,classes[i].classid,classes[i].rating, tokenAmount, classes[i].classdate,classes[i].start_time,classes[i].end_time,classes[i].tutorname,synopsis)
+        htmlString += sampleClassItem.f(classes[i].modulecode,classes[i].classid,classes[i].rating, tokenAmount, classes[i].classdate,classes[i].start_time,classes[i].end_time,classes[i].tutorname,synopsis)
     }
 
     return htmlString

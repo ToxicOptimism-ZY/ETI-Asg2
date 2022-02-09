@@ -309,7 +309,7 @@ function listClassDesc(classID) {
         htmlString += sampleErr.f("It appears an error has occured", errMsg)   
     }
 
-    document.getElementById('classModule').innerHTML = aClass.moduleid+" - "+aClass.classid
+    document.getElementById('classModule').innerHTML = aClass.modulecode+" - "+aClass.classid
     document.getElementById('classDesc').innerHTML = htmlString
 }
 

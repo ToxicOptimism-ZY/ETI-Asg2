@@ -263,9 +263,9 @@ function listYourBids(studentID, studentName, currentSemesterStartDate, referenc
             errMsg, aClass = JSON.parse(GetAClass(bids[i].classid))
             if (errMsg == "") {
                 if (current) { // Can alter bid, allow usage of deleting and editing token amount
-                    htmlString += sampleYourBids.f(aClass.moduleid, aClass.classid, aClass.rating, bid.tokenamount,aClass.classdate, aClass.start_time, aClass.end_time, aClass.tutorname, bid.bidID, studentID, studentName, currentSemesterStartDate)
+                    htmlString += sampleYourBids.f(aClass.modulecode, aClass.classid, aClass.rating, bid.tokenamount,aClass.classdate, aClass.start_time, aClass.end_time, aClass.tutorname, bid.bidID, studentID, studentName, currentSemesterStartDate)
                 } else { // Otherwise disable both
-                    htmlString += sampleYourPastBids.f(aClass.moduleid, aClass.classid, aClass.rating, bid.tokenamount,aClass.classdate, aClass.start_time, aClass.end_time, aClass.tutorname, bid.bidID, studentID, studentName, currentSemesterStartDate)
+                    htmlString += sampleYourPastBids.f(aClass.modulecode, aClass.classid, aClass.rating, bid.tokenamount,aClass.classdate, aClass.start_time, aClass.end_time, aClass.tutorname, bid.bidID, studentID, studentName, currentSemesterStartDate)
                 }
             }
             else { // No class information exists anymore
