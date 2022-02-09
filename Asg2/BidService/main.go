@@ -718,16 +718,6 @@ func UpdateBidRecord(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte("422 - Invalid status provided"))
 		} else { // All not null
 
-			if ETITokenID == 0 {
-				errMsg, tokenID := GetTokenID("ETI")
-				switch errMsg {
-				case "Success":
-					ETITokenID = tokenID
-				default:
-					panic(err.Error())
-				}
-			}
-
 			// Get the old bid amount
 			oldBid, errMsg := GetBid(db, bidID)
 			switch errMsg {
@@ -738,6 +728,17 @@ func UpdateBidRecord(w http.ResponseWriter, r *http.Request) {
 
 				//If a transaction is needed
 				if oldBid.TokenAmount != bid.TokenAmount {
+
+					if ETITokenID == 0 {
+						errMsg, tokenID := GetTokenID("ETI")
+						switch errMsg {
+						case "Success":
+							ETITokenID = tokenID
+						default:
+							panic(err.Error())
+						}
+					}
+
 					// Getting neccessary funds / refunding amount
 					var transaction Transactions
 					transaction.TokenTypeID = ETITokenID
@@ -861,11 +862,11 @@ func GetBidQueryStringValidator(w http.ResponseWriter, r *http.Request) {
 			GetSemesterBidRecordsByStatus(w, r)
 		}
 		return
+	} else {
+		//else no appropriate function
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte("404 - Required parameters not found"))
 	}
-
-	//else no appropriate function
-	w.WriteHeader(http.StatusNotFound)
-	w.Write([]byte("404 - Required parameters not found"))
 }
 
 // Get bid records with semester start date and status
