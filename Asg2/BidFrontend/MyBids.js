@@ -313,7 +313,7 @@ function listYourBids(studentID, studentName, currentSemesterStartDate, referenc
             }
         }
     }
-    else if (errMsg.substring(0,3) == 404) { // Not urgent error
+    else if (errMsg.substring(0,3) == "404") { // Not urgent error
         htmlString += sampleErr.f("","No bid was made by user.")
     }
     else { // Urgent error
