@@ -38,7 +38,7 @@ String.prototype.format = String.prototype.f = function() {
 //==================== Class API Callers ====================
 
 // Get all classes
-function GetClasses(){ //async
+async function GetClasses(){ //async
 
     /*
     // Sample data
@@ -121,7 +121,7 @@ function GetClasses(){ //async
 }
 
 // Get classes with the following moduleCode
-function SearchClasses(searchKey){ //async
+async function SearchClasses(searchKey){ //async
 
     /*
     // Sample data

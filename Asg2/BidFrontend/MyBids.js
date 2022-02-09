@@ -38,7 +38,7 @@ String.prototype.format = String.prototype.f = function() {
 //==================== Class API Callers ====================
 
 // Get a class by its class ID
-function GetAClass(classID){ //async
+async function GetAClass(classID){ //async
 
     /*
     // Sample data
