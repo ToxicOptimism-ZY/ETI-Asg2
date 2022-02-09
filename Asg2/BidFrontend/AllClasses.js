@@ -375,6 +375,11 @@ classModSearch = document.getElementById('classModSearch')
 classModSearch.addEventListener("keyup", function(event) {
     // Number 13 is the "Enter" key on the keyboard
     if (event.keyCode === 13 && studentID != null) {
-        listSearchedClasses(studentID,searchedSemesterStartDate,classModSearch.value)
+        if (classModSearch.value == "") {
+            listAllClasses(studentID,searchedSemesterStartDate)
+        }
+        else {
+            listSearchedClasses(studentID,searchedSemesterStartDate,classModSearch.value)
+        }
     }
 });
