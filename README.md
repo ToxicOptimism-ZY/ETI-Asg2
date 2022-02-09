@@ -556,6 +556,6 @@ The database is run on port 9229. <br/>
 <ol>
 <li>docker run -d -e  MYSQL_ROOT="root" -e MYSQL_ROOT_PASSWORD="asg2_bid_database" -e MYSQL_DATABASE="asg2_bids" -p 9229:9229 --name asg2-biddatabase toxicoptimism/asg2-biddatabase</li>
 <li>docker run -d -p 9221:9221 --name asg2-bidservice {docker_username}/{repo_name-bidservice}</li>
-<li>docker run -d -p 9220:9220 --name asg2-bidservice {docker_username}/{repo_name-bidservice}</li>
+<li>docker run -d -p 9220:80 --name asg2-bidfrontend {docker_username}/{repo_name-bidservice}</li>
 </ol>
 
