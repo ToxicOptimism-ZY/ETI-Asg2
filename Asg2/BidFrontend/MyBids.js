@@ -56,7 +56,7 @@ function GetAClass(classID){
             },
         }
     });
-    return errMsg, aClass
+    return [errMsg, aClass]
 }
 
 //==================== Bidding API Callers ====================
@@ -83,7 +83,7 @@ function GetBidRecordByBidID(bidID){
             },
         }
     });
-    return errMsg,bid
+    return [errMsg,bid]
 }
 
 // Update a bid record by its bidID via json string
@@ -247,7 +247,10 @@ sampleDropDown = `<option value="{0}">{0}</option>`;
 // Displays your bids
 function listYourBids(studentID, studentName, currentSemesterStartDate, referencedSemesterStartDate) {
     
-    errMsg, bids = JSON.parse(GetStudentBidRecords(studentID, referencedSemesterStartDate))
+    response = GetStudentBidRecords(studentID, referencedSemesterStartDate)
+    errMsg = response[0]
+    classes = JSON.parse(response[1])
+
     htmlString = ""
     current = false
 
@@ -260,7 +263,9 @@ function listYourBids(studentID, studentName, currentSemesterStartDate, referenc
 
     if (errMsg == "") { // If bid exists
         for (var i = 0; i < bids.length; i++) {
-            errMsg, aClass = JSON.parse(GetAClass(bids[i].classid))
+            response = GetAClass(bids[i].classid)
+            errMsg = response[0]
+            classes = JSON.parse(response[1])
             if (errMsg == "") {
                 if (current) { // Can alter bid, allow usage of deleting and editing token amount
                     htmlString += sampleYourBids.f(aClass.modulecode, aClass.classid, aClass.rating, bid.tokenamount,aClass.classdate, aClass.start_time, aClass.end_time, aClass.tutorname, bid.bidID, studentID, studentName, currentSemesterStartDate)

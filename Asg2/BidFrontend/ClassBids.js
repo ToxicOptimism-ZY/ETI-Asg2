@@ -56,7 +56,7 @@ function GetAClass(classID){
             },
         }
     });
-    return errMsg, aClass
+    return [errMsg, aClass]
 }
 
 //==================== Bidding API Callers ====================
@@ -109,7 +109,7 @@ function GetBidRecordByBidID(bidID){
             },
         }
     });
-    return errMsg,bid
+    return [errMsg,bid]
 }
 
 // Update a bid record by its bidID via json string
@@ -179,7 +179,7 @@ function GetStudentBidRecordForClass(studentID, classID, semesterStartDate){
             },
         }
     });
-    return errMsg, bid
+    return [errMsg, bid]
 }
 
 // Get all of the bids for the class in a particular semester in highest to lowest bid order.
@@ -210,7 +210,7 @@ function GetTopClassBidRecords(classID, semesterStartDate, anonKey){
             },
         }
     });
-    return errMsg, bid
+    return [errMsg, bid]
 }
 
 
@@ -297,7 +297,10 @@ sampleDropDown = `<option value="{0}">{0}</option>`;
 
 // Displays the class details
 function listClassDesc(classID) {
-    errMsg, aClass = JSON.parse(GetAClass(classID))
+    response = GetAClass(classID)
+    errMsg = response[0]
+    classes = JSON.parse(response[1])
+
     htmlString = ""
 
     if (errMsg == "") {
@@ -316,7 +319,10 @@ function listClassDesc(classID) {
 // Displays your bid
 function listYourBid(studentID, studentName, classID, currentSemesterStartDate, referencedSemesterStartDate) {
     
-    errMsg, bid = JSON.parse(GetStudentBidRecordForClass(studentID, classID, referencedSemesterStartDate))
+    response = GetStudentBidRecordForClass(studentID, classID, referencedSemesterStartDate)
+    errMsg = response[0]
+    classes = JSON.parse(response[1])
+
     htmlString = ""
     current = false
     create = true
@@ -386,9 +392,11 @@ function listBids(studentID, classID, currentSemesterStartDate, referencedSemest
         
     }
     
-    // Using the anonymous key in this instant as need to check user's id to determine ranking
-    errMsg, bids = JSON.parse(GetTopClassBidRecords(classID, referencedSemesterStartDate, "gq123jad9dq"))
-    
+    // Using the anonymous key in this instance as need to check user's id to determine ranking
+    response = GetTopClassBidRecords(classID, referencedSemesterStartDate, "gq123jad9dq")
+    errMsg = response[0]
+    classes = JSON.parse(response[1])
+
     htmlString = ""
     
     if (errMsg == "") {
@@ -431,7 +439,7 @@ function createBid(currentSemesterStartDate, classID, studentID, studentName,tok
     const jsonString = JSON.stringify(obj);
 
     // Call api caller
-    CreateBidRecord(jsonString)
+    errMsg = CreateBidRecord(jsonString)
 
     // Update current display
     listYourBid(studentID, studentName, classID, currentSemesterStartDate, currentSemesterStartDate)
@@ -450,7 +458,9 @@ function createBid(currentSemesterStartDate, classID, studentID, studentName,tok
 function updateBid(bidID, currentSemesterStartDate, classID, studentID, studentName,tokenAmount) {
     
     // Retrieve all untouched information
-    bid = JSON.parse(GetBidRecordByBidID(bidID))
+    response = GetBidRecordByBidID(bidID)
+    errMsg = response[0]
+    classes = JSON.parse(response[1])
 
     // Edit altered information
     bid.tokenamount = tokenAmount

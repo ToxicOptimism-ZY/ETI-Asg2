@@ -37,6 +37,63 @@ String.prototype.format = String.prototype.f = function() {
 
 // Get all classes
 function GetClasses(){
+
+    // Sample data
+    jsonObj = [
+
+        {
+    
+            "classid": 12,
+    
+            "modulecode": "ASG",
+    
+            "classdate": "12-2-2022",
+    
+            "classstart": "0800",
+    
+            "classend": "1000",
+    
+            "classcap": 5,
+    
+            "tutorname": "Zhao Yi",
+    
+            "tutorid": 420,
+    
+            "rating": 6.9,
+    
+            "classinfo": "Is this the real class? Or is it just fantasy?"
+    
+        },
+    
+        {
+    
+            "classid": 13,
+    
+            "modulecode": "ETI",
+    
+            "classdate": "12-2-2022",
+    
+            "classstart": "0800",
+    
+            "classend": "1000",
+    
+            "classcap": 5,
+    
+            "tutorname": "Zhao Yi",
+    
+            "tutorid": 420,
+    
+            "rating": 6.9,
+    
+            "classinfo": "Is this the real class? Or is it just fantasy?"
+    
+        }
+    
+    ]
+
+    return ["", jsonObj]
+
+    /*
     url = classURL + "/" + "?key=" + key;
     $.ajax({
         type: "GET",
@@ -57,10 +114,44 @@ function GetClasses(){
         }
     });
     return errMsg, classes
+    */
 }
 
 // Get classes with the following moduleCode
 function SearchClasses(searchKey){
+
+    // Sample data
+    jsonObj = [
+
+        {
+    
+            "classid": 12,
+    
+            "modulecode": "ASG",
+    
+            "classdate": "12-2-2022",
+    
+            "classstart": "0800",
+    
+            "classend": "1000",
+    
+            "classcap": 5,
+    
+            "tutorname": "Zhao Yi",
+    
+            "tutorid": 420,
+    
+            "rating": 6.9,
+    
+            "classinfo": "Is this the real class? Or is it just fantasy?"
+    
+        }
+    
+    ]
+
+    return ["", jsonObj]
+
+    /*
     url = classURL + "/" + "?key=" + key + "&ModuleCode=" + searchKey;
     $.ajax({
         type: "GET",
@@ -81,6 +172,7 @@ function SearchClasses(searchKey){
         }
     });
     return errMsg, classes
+    */
 }
 
 //==================== Bidding API Callers ====================
@@ -106,7 +198,7 @@ function GetStudentBidRecordForClass(studentID, classID, semesterStartDate){
             },
         }
     });
-    return errMsg, bid
+    return [errMsg, bid]
 }
 
 //==================== Templates ====================
@@ -158,7 +250,8 @@ function classLister(classes, studentID, referencedSemesterStartDate) {
         synopsis = classes[i].classinfo
 
         if(synopsis.length > 140) synopsis = synopsis.substring(0,141) + " ..." //limit text length of synopsis in brief display
-        bid = JSON.parse(GetStudentBidRecordForClass(studentID, classID, referencedSemesterStartDate))
+        response = GetStudentBidRecordForClass(studentID, classID, referencedSemesterStartDate)
+        bid = JSON.parse(response[1])
         tokenAmount = "---"
         if (bid != null) {
             tokenAmount = bid.tokenamount
@@ -173,7 +266,10 @@ function classLister(classes, studentID, referencedSemesterStartDate) {
 
 // Call api caller to get all classes to list
 function listAllClasses(studentID, referencedSemesterStartDate) {
-    errMsg, classes = JSON.parse(GetClasses())
+    response = GetClasses()
+    errMsg = response[0]
+    classes = JSON.parse(response[1])
+
     htmlString = ""
 
     if (errMsg == "") {
@@ -194,7 +290,10 @@ function listAllClasses(studentID, referencedSemesterStartDate) {
 
 // Call api caller to get searched classes of the module code to list
 function listSearchedClasses(studentID, referencedSemesterStartDate, searchKey) {
-    errMsg, classes = JSON.parse(SearchClasses(searchKey))
+    response = SearchClasses(searchKey)
+    errMsg = response[0]
+    classes = JSON.parse(response[1])
+
     htmlString = ""
 
     if (errMsg == "") {
