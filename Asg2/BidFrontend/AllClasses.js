@@ -41,7 +41,7 @@ String.prototype.format = String.prototype.f = function() {
 function GetClasses(){ //async
 
     // Sample data
-    jsonObj = [
+    classes = [
 
         {
     
@@ -93,7 +93,7 @@ function GetClasses(){ //async
     
     ]
 
-    return ["", jsonObj]
+    return ["", classes]
 
     /*
     url = classURL + "/" + "?key=" + key;
@@ -115,7 +115,7 @@ function GetClasses(){ //async
             },
         }
     });
-    return errMsg, classes
+    return [errMsg, classes]
     */
 }
 
@@ -123,7 +123,7 @@ function GetClasses(){ //async
 function SearchClasses(searchKey){ //async
 
     // Sample data
-    jsonObj = [
+    classes = [
 
         {
     
@@ -151,7 +151,7 @@ function SearchClasses(searchKey){ //async
     
     ]
 
-    return ["", jsonObj]
+    return ["", classes]
 
     /*
     url = classURL + "/" + "?key=" + key + "&ModuleCode=" + searchKey;
@@ -173,7 +173,7 @@ function SearchClasses(searchKey){ //async
             },
         }
     });
-    return errMsg, classes
+    return [errMsg, classes]
     */
 }
 

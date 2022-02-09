@@ -39,9 +39,9 @@ String.prototype.format = String.prototype.f = function() {
 
 // Get a class by its class ID
 function GetAClass(classID){ //async
-    
+
     // Sample data
-    jsonObj = 
+    aClass = 
 
     {
     
@@ -175,6 +175,7 @@ async function GetStudentBidRecords(studentID, semesterStartDate){
         url: url,
         success: function (response, _) {
             bids = JSON.parse(response);
+            errMsg = ""
         },
         statusCode: {
             401: function(response) {

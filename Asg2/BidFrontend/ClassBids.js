@@ -41,7 +41,7 @@ String.prototype.format = String.prototype.f = function() {
 function GetAClass(classID){ //async
 
     // Sample data
-    jsonObj = 
+    aClass = 
 
     {
     
@@ -201,6 +201,7 @@ async function GetStudentBidRecordForClass(studentID, classID, semesterStartDate
         url: url,
         success: function (response, _) {
             bid = JSON.parse(response);
+            errMsg = ""
         },
         statusCode: {
             401: function(response) {
@@ -251,7 +252,7 @@ async function GetTopClassBidRecords(classID, semesterStartDate, anonKey){
 //==================== Templates ====================
 
 // Used to populate the content of the html class details
-sampleDesc = `
+sampleClassDesc = `
 <div class='row'>
     <div class='col-sm-12 fontstyle' style='background-color: white;'>
         <table style='border-collapse: collapse; width:100%;'  >          
