@@ -1041,6 +1041,7 @@ func GetTopClassBidRecords(w http.ResponseWriter, r *http.Request) {
 			anon = true
 		}
 	default:
+		anon = true
 	}
 
 	var bids []Bid
@@ -1100,6 +1101,7 @@ func GetTopClassBidRecordsByStatus(w http.ResponseWriter, r *http.Request) {
 			anon = true
 		}
 	default:
+		anon = true
 	}
 
 	var bids []Bid
