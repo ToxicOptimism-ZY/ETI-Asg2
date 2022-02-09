@@ -1,6 +1,8 @@
 //==================== Structures & Variables ====================
-const classURL = "http://10.31.11.12:9101/api/v1/class"
-const bidURL = "http://10.31.11.12:9221/api/v1/bids"
+const classURL = "http://localhost:9101/api/v1/class"
+const bidURL = "http://localhost:9221/api/v1/bids"
+//const classURL = "http://10.31.11.12:9101/api/v1/class"
+//const bidURL = "http://10.31.11.12:9221/api/v1/bids"
 const key = "2c78afaf-97da-4816-bbee-9ad239abb298"
 
 //==================== Auxiliary Functions ====================
@@ -249,7 +251,7 @@ function listYourBids(studentID, studentName, currentSemesterStartDate, referenc
     
     response = GetStudentBidRecords(studentID, referencedSemesterStartDate)
     errMsg = response[0]
-    classes = JSON.parse(response[1])
+    classes = response[1]
 
     htmlString = ""
     current = false
@@ -265,7 +267,7 @@ function listYourBids(studentID, studentName, currentSemesterStartDate, referenc
         for (var i = 0; i < bids.length; i++) {
             response = GetAClass(bids[i].classid)
             errMsg = response[0]
-            classes = JSON.parse(response[1])
+            classes = response[1]
             if (errMsg == "") {
                 if (current) { // Can alter bid, allow usage of deleting and editing token amount
                     htmlString += sampleYourBids.f(aClass.modulecode, aClass.classid, aClass.rating, bid.tokenamount,aClass.classdate, aClass.start_time, aClass.end_time, aClass.tutorname, bid.bidID, studentID, studentName, currentSemesterStartDate)
@@ -386,7 +388,7 @@ if (studentID != null) {
 // Populate neccessary html
 listYourBids(studentID, studentName, currentSemesterStartDate, searchedSemesterStartDate)
 } else {
-    document.getElementById('scrollList').innerHTML = sampleDivErr.f("It appears an error has occured","User not authenticated")
+    document.getElementById('scrollList').innerHTML = sampleErr.f("It appears an error has occured","User not authenticated")
 }
 
 populateDropDown(date)

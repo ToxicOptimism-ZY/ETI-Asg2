@@ -1,6 +1,8 @@
 //==================== Structures & Variables ====================
-const classURL = "http://10.31.11.12:9101/api/v1/class"
-const bidURL = "http://10.31.11.12:9221/api/v1/bids"
+const classURL = "http://localhost:9101/api/v1/class"
+const bidURL = "http://localhost:9221/api/v1/bids"
+//const classURL = "http://10.31.11.12:9101/api/v1/class"
+//const bidURL = "http://10.31.11.12:9221/api/v1/bids"
 const key = "2c78afaf-97da-4816-bbee-9ad239abb298"
 
 //==================== Auxiliary Functions ====================
@@ -186,15 +188,18 @@ function GetStudentBidRecordForClass(studentID, classID, semesterStartDate){
         success: function (response, _) {
             errMsg = ''
             bid = JSON.parse(response);
+            console.log(bid)
         },
         statusCode: {
             401: function(response) {
                 errMsg = response.responseText
                 bid = null
+                console.log(bid)
             },
             404: function(response) {
                 errMsg = response.responseText
                 bid = null
+                console.log(bid)
             },
         }
     });
@@ -250,8 +255,8 @@ function classLister(classes, studentID, referencedSemesterStartDate) {
         synopsis = classes[i].classinfo
 
         if(synopsis.length > 140) synopsis = synopsis.substring(0,141) + " ..." //limit text length of synopsis in brief display
-        response = GetStudentBidRecordForClass(studentID, classID, referencedSemesterStartDate)
-        bid = JSON.parse(response[1])
+        response = GetStudentBidRecordForClass(studentID, classes[i].classid, referencedSemesterStartDate)
+        bid = response[1]
         tokenAmount = "---"
         if (bid != null) {
             tokenAmount = bid.tokenamount
@@ -268,7 +273,7 @@ function classLister(classes, studentID, referencedSemesterStartDate) {
 function listAllClasses(studentID, referencedSemesterStartDate) {
     response = GetClasses()
     errMsg = response[0]
-    classes = JSON.parse(response[1])
+    classes = response[1]
 
     htmlString = ""
 
@@ -292,7 +297,7 @@ function listAllClasses(studentID, referencedSemesterStartDate) {
 function listSearchedClasses(studentID, referencedSemesterStartDate, searchKey) {
     response = SearchClasses(searchKey)
     errMsg = response[0]
-    classes = JSON.parse(response[1])
+    classes = response[1]
 
     htmlString = ""
 

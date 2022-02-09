@@ -1,6 +1,8 @@
 //==================== Structures & Variables ====================
-const classURL = "http://10.31.11.12:9101/api/v1/class"
-const bidURL = "http://10.31.11.12:9221/api/v1/bids"
+const classURL = "http://localhost:9101/api/v1/class"
+const bidURL = "http://localhost:9221/api/v1/bids"
+//const classURL = "http://10.31.11.12:9101/api/v1/class"
+//const bidURL = "http://10.31.11.12:9221/api/v1/bids"
 const key = "2c78afaf-97da-4816-bbee-9ad239abb298"
 
 //==================== Auxiliary Functions ====================
@@ -299,7 +301,7 @@ sampleDropDown = `<option value="{0}">{0}</option>`;
 function listClassDesc(classID) {
     response = GetAClass(classID)
     errMsg = response[0]
-    classes = JSON.parse(response[1])
+    classes = response[1]
 
     htmlString = ""
 
@@ -321,7 +323,7 @@ function listYourBid(studentID, studentName, classID, currentSemesterStartDate, 
     
     response = GetStudentBidRecordForClass(studentID, classID, referencedSemesterStartDate)
     errMsg = response[0]
-    classes = JSON.parse(response[1])
+    classes = response[1]
 
     htmlString = ""
     current = false
@@ -395,7 +397,7 @@ function listBids(studentID, classID, currentSemesterStartDate, referencedSemest
     // Using the anonymous key in this instance as need to check user's id to determine ranking
     response = GetTopClassBidRecords(classID, referencedSemesterStartDate, "gq123jad9dq")
     errMsg = response[0]
-    classes = JSON.parse(response[1])
+    classes = response[1]
 
     htmlString = ""
     
@@ -460,7 +462,7 @@ function updateBid(bidID, currentSemesterStartDate, classID, studentID, studentN
     // Retrieve all untouched information
     response = GetBidRecordByBidID(bidID)
     errMsg = response[0]
-    classes = JSON.parse(response[1])
+    classes = response[1]
 
     // Edit altered information
     bid.tokenamount = tokenAmount
@@ -550,10 +552,10 @@ if (studentID != null) {
         listYourBid(studentID, studentName, classID, currentSemesterStartDate, searchedSemesterStartDate)
         listBids(studentID, classID, currentSemesterStartDate, searchedSemesterStartDate) 
     } else {
-        document.getElementById('scrollList').innerHTML = sampleDivErr.f("It appears an error has occured","No class was selected") 
+        document.getElementById('scrollList').innerHTML = sampleErr.f("It appears an error has occured","No class was selected") 
     }
 } else {
-    document.getElementById('scrollList').innerHTML = sampleDivErr.f("It appears an error has occured","User not authenticated")
+    document.getElementById('scrollList').innerHTML = sampleErr.f("It appears an error has occured","User not authenticated")
 }
 
 populateDropDown(date)
