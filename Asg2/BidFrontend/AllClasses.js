@@ -59,9 +59,9 @@ function GetClasses(){
     return errMsg, classes
 }
 
-// Get classes with the following moduleID
+// Get classes with the following moduleCode
 function SearchClasses(searchKey){
-    url = classURL + "/" + "?key=" + key + "&moduleID=" + searchKey;
+    url = classURL + "/" + "?key=" + key + "&ModuleCode=" + searchKey;
     $.ajax({
         type: "GET",
         url: url,
