@@ -14,6 +14,7 @@ import (
 	"github.com/robfig/cron" //used for go routine
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
@@ -1149,6 +1150,12 @@ func main() {
 	// Define url functions
 	router := mux.NewRouter()
 
+	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type"})
+
+	originsOk := handlers.AllowedOrigins([]string{"*"})
+
+	methodsOk := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE"})
+
 	router.HandleFunc("/api/v1/bids", CreateBidRecord).Methods("POST")
 	router.HandleFunc("/api/v1/bids/{bidID}", GetBidRecordByBidID).Methods("GET")
 	router.HandleFunc("/api/v1/bids/{bidID}", UpdateBidRecord).Methods("PUT")
@@ -1156,7 +1163,7 @@ func main() {
 	router.HandleFunc("/api/v1/bids", GetBidQueryStringValidator).Methods("GET")
 
 	fmt.Println("Bid Service operating on port 9221")
-	log.Fatal(http.ListenAndServe(":9221", router))
+	log.Fatal(http.ListenAndServe(":9221", handlers.CORS(originsOk, headersOk, methodsOk)(router)))
 
 	// Update every student's name once a saturday
 	c := cron.New()

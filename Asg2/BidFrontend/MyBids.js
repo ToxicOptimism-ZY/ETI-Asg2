@@ -38,9 +38,40 @@ String.prototype.format = String.prototype.f = function() {
 //==================== Class API Callers ====================
 
 // Get a class by its class ID
-function GetAClass(classID){
+function GetAClass(classID){ //async
+    
+    // Sample data
+    jsonObj = 
+
+    {
+    
+        "classid": 3,
+
+        "modulecode": "ASG",
+
+        "classdate": "12-2-2022",
+
+        "classstart": "0800",
+
+        "classend": "1000",
+
+        "classcap": 5,
+
+        "tutorname": "Zhao Yi",
+
+        "tutorid": 420,
+
+        "rating": 3.2,
+
+        "classinfo": "Is this the real class? Or is it just fantasy?"
+
+    }
+
+    errMsg = ""
+    
+    /*
     url = classURL + "/" + classID;
-    $.ajax({
+    await $.ajax({
         type: "GET",
         url: url,
         success: function (response, _) {
@@ -58,6 +89,7 @@ function GetAClass(classID){
             },
         }
     });
+    */
     return [errMsg, aClass]
 }
 
@@ -65,9 +97,9 @@ function GetAClass(classID){
 
 // Get a bid record by its bid ID
 // Note, mostly used here to retrieve all data before updating
-function GetBidRecordByBidID(bidID){
+async function GetBidRecordByBidID(bidID){
     url = bidURL + "/" + bidID + "?key=" + key;
-    $.ajax({
+    await $.ajax({
         type: "GET",
         url: url,
         success: function (response, _) {
@@ -89,9 +121,9 @@ function GetBidRecordByBidID(bidID){
 }
 
 // Update a bid record by its bidID via json string
-function UpdateBidRecord(bidID, jsonString){
+async function UpdateBidRecord(bidID, jsonString){
     url = bidURL + "/" + bidID + "?key=" + key;
-    $.ajax({
+    await $.ajax({
         type: "PUT",
         url: url,
         data: jsonString,
@@ -118,9 +150,9 @@ function UpdateBidRecord(bidID, jsonString){
 }
 
 // Delete a bid record by its bidID
-function DeleteBidRecord(bidID){
+async function DeleteBidRecord(bidID){
     url = bidURL + "/" + bidID + "?key=" + key;
-    $.ajax({
+    await $.ajax({
         type: "DELETE",
         url: url,
         statusCode: {
@@ -136,9 +168,9 @@ function DeleteBidRecord(bidID){
 }
 
 // Get student's bid for a class in a particular semester
-function GetStudentBidRecords(studentID, semesterStartDate){
+async function GetStudentBidRecords(studentID, semesterStartDate){
     url = bidURL + "?key=" + key  + "&studentID=" + studentID + "&semesterStartDate=" + semesterStartDate;
-    $.ajax({
+    await $.ajax({
         type: "GET",
         url: url,
         success: function (response, _) {
@@ -162,7 +194,7 @@ function GetStudentBidRecords(studentID, semesterStartDate){
 
 // Used to populate the content of the html your bids
 sampleYourPastBids = `
-<div class='row' style='padding:40px 80px 40px 80px;' >
+<div class='row' style='padding:20px 20px 20px 20px;' >
     <div class='col-sm-12 fontstyle dataTable'>
         <table style='border-collapse: collapse; width:100%;'  >
             <tr>
@@ -196,7 +228,7 @@ sampleYourPastBids = `
 
 // Used to populate the content of the html your bids
 sampleYourBids = `
-<div class='row' style='padding:40px 80px 40px 80px;' >
+<div class='row' style='padding:40px 20px 40px 20px;' >
     <div class='col-sm-12 fontstyle dataTable'>
         <table style='border-collapse: collapse; width:100%;'  >
             <tr>
@@ -234,7 +266,7 @@ sampleErr = `
 
 // Used to present any error messages for the content of the html scroll list
 sampleDivErr = `
-<div class='row' style='padding:40px 80px 40px 80px;' >
+<div class='row' style='padding:40px 20px 40px 20px;' >
     <div class='col-sm-12 fontstyle'>
         <p class='fontstyle' style='text-align:center'>{0}</p>
         <h1 class='fontstyle' style='text-align:center'>{1}</h1>
@@ -251,7 +283,7 @@ function listYourBids(studentID, studentName, currentSemesterStartDate, referenc
     
     response = GetStudentBidRecords(studentID, referencedSemesterStartDate)
     errMsg = response[0]
-    classes = response[1]
+    bids = response[1]
 
     htmlString = ""
     current = false
@@ -267,12 +299,12 @@ function listYourBids(studentID, studentName, currentSemesterStartDate, referenc
         for (var i = 0; i < bids.length; i++) {
             response = GetAClass(bids[i].classid)
             errMsg = response[0]
-            classes = response[1]
+            aClass = response[1]
             if (errMsg == "") {
                 if (current) { // Can alter bid, allow usage of deleting and editing token amount
-                    htmlString += sampleYourBids.f(aClass.modulecode, aClass.classid, aClass.rating, bid.tokenamount,aClass.classdate, aClass.start_time, aClass.end_time, aClass.tutorname, bid.bidID, studentID, studentName, currentSemesterStartDate)
+                    htmlString += sampleYourBids.f(aClass.modulecode, aClass.classid, aClass.rating, bid.tokenamount,aClass.classdate, aClass.classstart, aClass.classend, aClass.tutorname, bid.bidID, studentID, studentName, currentSemesterStartDate)
                 } else { // Otherwise disable both
-                    htmlString += sampleYourPastBids.f(aClass.modulecode, aClass.classid, aClass.rating, bid.tokenamount,aClass.classdate, aClass.start_time, aClass.end_time, aClass.tutorname, bid.bidID, studentID, studentName, currentSemesterStartDate)
+                    htmlString += sampleYourPastBids.f(aClass.modulecode, aClass.classid, aClass.rating, bid.tokenamount,aClass.classdate, aClass.classstart, aClass.classend, aClass.tutorname, bid.bidID, studentID, studentName, currentSemesterStartDate)
                 }
             }
             else { // No class information exists anymore

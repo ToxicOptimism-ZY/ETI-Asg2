@@ -38,14 +38,14 @@ String.prototype.format = String.prototype.f = function() {
 //==================== Class API Callers ====================
 
 // Get all classes
-function GetClasses(){
+function GetClasses(){ //async
 
     // Sample data
     jsonObj = [
 
         {
     
-            "classid": 12,
+            "classid": 3,
     
             "modulecode": "ASG",
     
@@ -61,7 +61,7 @@ function GetClasses(){
     
             "tutorid": 420,
     
-            "rating": 6.9,
+            "rating": 3.2,
     
             "classinfo": "Is this the real class? Or is it just fantasy?"
     
@@ -85,7 +85,7 @@ function GetClasses(){
     
             "tutorid": 420,
     
-            "rating": 6.9,
+            "rating": 4.2,
     
             "classinfo": "Is this the real class? Or is it just fantasy?"
     
@@ -97,7 +97,7 @@ function GetClasses(){
 
     /*
     url = classURL + "/" + "?key=" + key;
-    $.ajax({
+    await $.ajax({
         type: "GET",
         url: url,
         success: function (response, _) {
@@ -120,14 +120,14 @@ function GetClasses(){
 }
 
 // Get classes with the following moduleCode
-function SearchClasses(searchKey){
+function SearchClasses(searchKey){ //async
 
     // Sample data
     jsonObj = [
 
         {
     
-            "classid": 12,
+            "classid": 3,
     
             "modulecode": "ASG",
     
@@ -143,7 +143,7 @@ function SearchClasses(searchKey){
     
             "tutorid": 420,
     
-            "rating": 6.9,
+            "rating": 3.2,
     
             "classinfo": "Is this the real class? Or is it just fantasy?"
     
@@ -155,7 +155,7 @@ function SearchClasses(searchKey){
 
     /*
     url = classURL + "/" + "?key=" + key + "&ModuleCode=" + searchKey;
-    $.ajax({
+    await $.ajax({
         type: "GET",
         url: url,
         success: function (response, _) {
@@ -180,26 +180,23 @@ function SearchClasses(searchKey){
 //==================== Bidding API Callers ====================
 
 // Get student's bid for a class in a particular semester
-function GetStudentBidRecordForClass(studentID, classID, semesterStartDate){
+async function GetStudentBidRecordForClass(studentID, classID, semesterStartDate){
     url = bidURL + "?key=" + key  + "&studentID=" + studentID + "&classID=" + classID + "&semesterStartDate=" + semesterStartDate;
-    $.ajax({
+    await $.ajax({
         type: "GET",
         url: url,
         success: function (response, _) {
             errMsg = ''
             bid = JSON.parse(response);
-            console.log(bid)
         },
         statusCode: {
             401: function(response) {
                 errMsg = response.responseText
                 bid = null
-                console.log(bid)
             },
             404: function(response) {
                 errMsg = response.responseText
                 bid = null
-                console.log(bid)
             },
         }
     });
@@ -210,7 +207,7 @@ function GetStudentBidRecordForClass(studentID, classID, semesterStartDate){
 
 // Used to populate the content of the html scroll list
 sampleClassItem = `
-<div class='row' style='padding:40px 80px 40px 80px;' >
+<div class='row' style='padding:20px 20px 20px 20px;' >
     <div class='col-sm-12 fontstyle dataTable'>
         <table style='border-collapse: collapse; width:100%;'  >
             <tr>
@@ -263,7 +260,7 @@ function classLister(classes, studentID, referencedSemesterStartDate) {
         }
 
         // Format the string to replace all {0} with attributes
-        htmlString += sampleClassItem.f(classes[i].modulecode,classes[i].classid,classes[i].rating, tokenAmount, classes[i].classdate,classes[i].start_time,classes[i].end_time,classes[i].tutorname,synopsis)
+        htmlString += sampleClassItem.f(classes[i].modulecode,classes[i].classid,classes[i].rating, tokenAmount, classes[i].classdate,classes[i].classstart,classes[i].classend,classes[i].tutorname,synopsis)
     }
 
     return htmlString
@@ -285,6 +282,7 @@ function listAllClasses(studentID, referencedSemesterStartDate) {
     }
     else if (errMsg.substring(0,3) == 404) { // Not an urgent error
         htmlString += sampleErr.f("","No classes could be found.")
+        console.log(htmlString)
     }
     else { // Urgent error
         htmlString += sampleErr.f("It appears an error has occured",errMsg)   

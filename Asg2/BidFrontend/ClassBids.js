@@ -38,9 +38,40 @@ String.prototype.format = String.prototype.f = function() {
 //==================== Class API Callers ====================
 
 // Get a class by its class ID
-function GetAClass(classID){
+function GetAClass(classID){ //async
+
+    // Sample data
+    jsonObj = 
+
+    {
+    
+        "classid": 3,
+
+        "modulecode": "ASG",
+
+        "classdate": "12-2-2022",
+
+        "classstart": "0800",
+
+        "classend": "1000",
+
+        "classcap": 5,
+
+        "tutorname": "Zhao Yi",
+
+        "tutorid": 420,
+
+        "rating": 3.2,
+
+        "classinfo": "Is this the real class? Or is it just fantasy?"
+
+    }
+
+    errMsg = ""
+
+    /*
     url = classURL + "/" + classID;
-    $.ajax({
+    await $.ajax({
         type: "GET",
         url: url,
         success: function (response, _) {
@@ -58,15 +89,16 @@ function GetAClass(classID){
             },
         }
     });
+    */
     return [errMsg, aClass]
 }
 
 //==================== Bidding API Callers ====================
 
 // Create new bid record via json string
-function CreateBidRecord(jsonString){
+async function CreateBidRecord(jsonString){
     url = bidURL + "?key=" + key;
-    $.ajax({
+    await $.ajax({
         type: "POST",
         url: url,
         data: jsonString,
@@ -91,9 +123,9 @@ function CreateBidRecord(jsonString){
 
 // Get a bid record by its bid ID
 // Note, mostly used here to retrieve all data before updating
-function GetBidRecordByBidID(bidID){
+async function GetBidRecordByBidID(bidID){
     url = bidURL + "/" + bidID + "?key=" + key;
-    $.ajax({
+    await $.ajax({
         type: "GET",
         url: url,
         success: function (response, _) {
@@ -115,9 +147,9 @@ function GetBidRecordByBidID(bidID){
 }
 
 // Update a bid record by its bidID via json string
-function UpdateBidRecord(bidID, jsonString){
+async function UpdateBidRecord(bidID, jsonString){
     url = bidURL + "/" + bidID + "?key=" + key;
-    $.ajax({
+    await $.ajax({
         type: "PUT",
         url: url,
         data: jsonString,
@@ -144,9 +176,9 @@ function UpdateBidRecord(bidID, jsonString){
 }
 
 // Delete a bid record by its bidID
-function DeleteBidRecord(bidID){
+async function DeleteBidRecord(bidID){
     url = bidURL + "/" + bidID + "?key=" + key;
-    $.ajax({
+    await $.ajax({
         type: "DELETE",
         url: url,
         statusCode: {
@@ -162,9 +194,9 @@ function DeleteBidRecord(bidID){
 }
 
 // Get student's bid for a class in a particular semester
-function GetStudentBidRecordForClass(studentID, classID, semesterStartDate){
+async function GetStudentBidRecordForClass(studentID, classID, semesterStartDate){
     url = bidURL + "?key=" + key  + "&studentID=" + studentID + "&classID=" + classID + "&semesterStartDate=" + semesterStartDate;
-    $.ajax({
+    await $.ajax({
         type: "GET",
         url: url,
         success: function (response, _) {
@@ -185,7 +217,7 @@ function GetStudentBidRecordForClass(studentID, classID, semesterStartDate){
 }
 
 // Get all of the bids for the class in a particular semester in highest to lowest bid order.
-function GetTopClassBidRecords(classID, semesterStartDate, anonKey){
+async function GetTopClassBidRecords(classID, semesterStartDate, anonKey){
     
     url = bidURL + "?key=" + key + "&classID=" + classID + "&semesterStartDate=" + semesterStartDate;
     
@@ -194,7 +226,7 @@ function GetTopClassBidRecords(classID, semesterStartDate, anonKey){
         url += "&anonymousKey=" + anonKey
     }
     
-    $.ajax({
+    await $.ajax({
         type: "GET",
         url: url,
         success: function (response, _) {
@@ -239,7 +271,7 @@ sampleDesc = `
 
 // Used to populate the content of the html your bid
 sampleYourClassBid = `
-<div class='row' style='padding:40px 80px 40px 80px;' >
+<div class='row' style='padding:20px 20px 20px 20px;' >
     <div class='col-sm-12 fontstyle dataTable'>
         <table style='border-collapse: collapse; width:100%;'  >
             <tr>
@@ -267,7 +299,7 @@ sampleYourClassBid = `
 
 // Used to populate the content of the html all bids
 sampleClassBid = `
-<div class='row' style='padding:40px 80px 40px 80px;' >
+<div class='row' style='padding:20px 20px 20px 20px;' >
     <div class='col-sm-12 fontstyle dataTable'>
         <table style='border-collapse: collapse; width:100%;'  >
             <tr>
@@ -301,14 +333,14 @@ sampleDropDown = `<option value="{0}">{0}</option>`;
 function listClassDesc(classID) {
     response = GetAClass(classID)
     errMsg = response[0]
-    classes = response[1]
+    aClass = response[1]
 
     htmlString = ""
 
     if (errMsg == "") {
 
         // format string's {0} with attributes
-        htmlString += sampleClassDesc.f(aClass.classdate,aClass.start_time,aClass.end_time,aClass.tutorname,aClass.rating, aClass.classinfo)
+        htmlString += sampleClassDesc.f(aClass.classdate,aClass.classstart,aClass.classend,aClass.tutorname,aClass.rating, aClass.classinfo)
     }
     else {
         htmlString += sampleErr.f("It appears an error has occured", errMsg)   
@@ -323,7 +355,7 @@ function listYourBid(studentID, studentName, classID, currentSemesterStartDate, 
     
     response = GetStudentBidRecordForClass(studentID, classID, referencedSemesterStartDate)
     errMsg = response[0]
-    classes = response[1]
+    bids = response[1]
 
     htmlString = ""
     current = false
@@ -397,7 +429,7 @@ function listBids(studentID, classID, currentSemesterStartDate, referencedSemest
     // Using the anonymous key in this instance as need to check user's id to determine ranking
     response = GetTopClassBidRecords(classID, referencedSemesterStartDate, "gq123jad9dq")
     errMsg = response[0]
-    classes = response[1]
+    bids = response[1]
 
     htmlString = ""
     
@@ -462,7 +494,7 @@ function updateBid(bidID, currentSemesterStartDate, classID, studentID, studentN
     // Retrieve all untouched information
     response = GetBidRecordByBidID(bidID)
     errMsg = response[0]
-    classes = response[1]
+    bid = response[1]
 
     // Edit altered information
     bid.tokenamount = tokenAmount
