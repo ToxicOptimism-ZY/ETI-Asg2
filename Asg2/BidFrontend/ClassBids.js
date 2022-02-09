@@ -1,8 +1,8 @@
 //==================== Structures & Variables ====================
-const classURL = "http://localhost:9101/api/v1/class"
-const bidURL = "http://localhost:9221/api/v1/bids"
-//const classURL = "http://10.31.11.12:9101/api/v1/class"
-//const bidURL = "http://10.31.11.12:9221/api/v1/bids"
+//const classURL = "http://localhost:9101/api/v1/class"
+//const bidURL = "http://localhost:9221/api/v1/bids"
+const classURL = "http://10.31.11.12:9101/api/v1/class"
+const bidURL = "http://10.31.11.12:9221/api/v1/bids"
 const key = "2c78afaf-97da-4816-bbee-9ad239abb298"
 
 //==================== Auxiliary Functions ====================
@@ -40,6 +40,7 @@ String.prototype.format = String.prototype.f = function() {
 // Get a class by its class ID
 function GetAClass(classID){ //async
 
+    /*
     // Sample data
     aClass = 
 
@@ -68,8 +69,8 @@ function GetAClass(classID){ //async
     }
 
     errMsg = ""
+    */
 
-    /*
     url = classURL + "/" + classID;
     await $.ajax({
         type: "GET",
@@ -89,7 +90,6 @@ function GetAClass(classID){ //async
             },
         }
     });
-    */
     return [errMsg, aClass]
 }
 

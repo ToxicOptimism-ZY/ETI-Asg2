@@ -1,8 +1,8 @@
 //==================== Structures & Variables ====================
-const classURL = "http://localhost:9101/api/v1/class"
-const bidURL = "http://localhost:9221/api/v1/bids"
-//const classURL = "http://10.31.11.12:9101/api/v1/class"
-//const bidURL = "http://10.31.11.12:9221/api/v1/bids"
+//const classURL = "http://localhost:9101/api/v1/class"
+//const bidURL = "http://localhost:9221/api/v1/bids"
+const classURL = "http://10.31.11.12:9101/api/v1/class"
+const bidURL = "http://10.31.11.12:9221/api/v1/bids"
 const key = "2c78afaf-97da-4816-bbee-9ad239abb298"
 
 //==================== Auxiliary Functions ====================
@@ -40,6 +40,7 @@ String.prototype.format = String.prototype.f = function() {
 // Get all classes
 function GetClasses(){ //async
 
+    /*
     // Sample data
     classes = [
 
@@ -94,8 +95,8 @@ function GetClasses(){ //async
     ]
 
     return ["", classes]
-
-    /*
+    */
+    
     url = classURL + "/" + "?key=" + key;
     await $.ajax({
         type: "GET",
@@ -116,12 +117,13 @@ function GetClasses(){ //async
         }
     });
     return [errMsg, classes]
-    */
+    
 }
 
 // Get classes with the following moduleCode
 function SearchClasses(searchKey){ //async
 
+    /*
     // Sample data
     classes = [
 
@@ -152,8 +154,8 @@ function SearchClasses(searchKey){ //async
     ]
 
     return ["", classes]
+    */
 
-    /*
     url = classURL + "/" + "?key=" + key + "&ModuleCode=" + searchKey;
     await $.ajax({
         type: "GET",
@@ -174,7 +176,6 @@ function SearchClasses(searchKey){ //async
         }
     });
     return [errMsg, classes]
-    */
 }
 
 //==================== Bidding API Callers ====================
