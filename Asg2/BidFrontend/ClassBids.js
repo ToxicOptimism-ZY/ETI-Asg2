@@ -17,7 +17,7 @@ function getSemesterStartDate() {
         date.setDate(date.getDate() + amount)
     }
 
-    return `${date.getDate()}-${date.getMonth()+1}-${date.getFullYear()}`, date
+    return [`${date.getDate()}-${date.getMonth()+1}-${date.getFullYear()}`, date]
 }
 
 // Return a formatted string
@@ -514,9 +514,15 @@ function dropDownOnChange() {
 //==================== Main ====================
 
 // Get important data
-currentSemesterStartDate, date = getSemesterStartDate()
-studentID = sessionStorage.getItem("studentID") // From authentication
-studentName = sessionStorage.getItem("studentName") // From authentication
+startDateData = getSemesterStartDate()
+currentSemesterStartDate = startDateData[0]
+date = startDateData[1]
+
+//studentID = sessionStorage.getItem("studentID") // From authentication
+//studentName = sessionStorage.getItem("studentName") // From authentication
+
+studentID = "S10196983"
+studentName = "Yap Zhao Yi" 
 
 if (sessionStorage.getItem("searchedSemesterStartDate") != null) {
     searchedSemesterStartDate = sessionStorage.getItem("searchedSemesterStartDate")

@@ -17,7 +17,7 @@ function getSemesterStartDate() {
         date.setDate(date.getDate() + amount)
     }
 
-    return `${date.getDate()}-${date.getMonth()+1}-${date.getFullYear()}`, date
+    return [`${date.getDate()}-${date.getMonth()+1}-${date.getFullYear()}`, date];
 }
 
 // Return a formatted string
@@ -178,6 +178,9 @@ function listAllClasses(studentID, referencedSemesterStartDate) {
 
     if (errMsg == "") {
         htmlString += classLister(classes, studentID, referencedSemesterStartDate)
+        if (htmlString == "") {
+            htmlString += sampleErr.f("","No classes could be found.")
+        }
     }
     else if (errMsg.substring(0,3) == 404) { // Not an urgent error
         htmlString += sampleErr.f("","No classes could be found.")
@@ -196,6 +199,9 @@ function listSearchedClasses(studentID, referencedSemesterStartDate, searchKey) 
 
     if (errMsg == "") {
         htmlString += classLister(classes, studentID, referencedSemesterStartDate)
+        if (htmlString == "") {
+            htmlString += sampleErr.f("","No classes could be found.")
+        }
     }
     else if (errMsg.substring(0,3) == 404) { //Not an urgent error
         htmlString += sampleErr.f("","No classes could be found.")
@@ -237,8 +243,14 @@ function dropDownOnChange() {
 //==================== Main ====================
 
 // Get important data
-currentSemesterStartDate, date = getSemesterStartDate()
-studentID = sessionStorage.getItem("studentID") // From authentication
+startDateData = getSemesterStartDate()
+currentSemesterStartDate = startDateData[0]
+date = startDateData[1]
+
+//studentID = sessionStorage.getItem("studentID") // From authentication
+
+studentID = "S10196983"
+studentName = "Yap Zhao Yi" 
 
 if (sessionStorage.getItem("searchedSemesterStartDate") != null) {
     searchedSemesterStartDate = sessionStorage.getItem("searchedSemesterStartDate")
