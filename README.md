@@ -60,6 +60,8 @@ These struct declarations are critical in understanding how the data is laid out
 | TokenAmount | Integer | The amount of tokens the bid is |
 | Status | Integer | The bid status of "Pending", "Success" or "Failed", varchar(50)  |
 
+There can only be 1 bid with a certain combination of ClassID and StudentID to ensure the student's raises his previous bid instead of making a new one.
+
 Json Version
 ```javascript
 {
