@@ -8,7 +8,7 @@ services:
           context: ./BidFrontend
       container_name: bid-frontend
       ports: 
-      - 9220:9220
+      - 9220:80
       environment:
       - NGINX_PORT=80
 
